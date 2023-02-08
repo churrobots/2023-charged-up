@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.helpers.SubsystemInspector;
+import frc.robot.helpers.swerve.AndymarkFalconSwerveModule;
+import frc.robot.helpers.swerve.BaseSwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class SwerveDrivetrain extends SubsystemBase {
@@ -48,7 +50,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     // BEGIN TURBOSWERVO
     /////////////////////////
-    m_frontLeft = new AndymarkSwerveModuleV2(
+    m_frontLeft = new AndymarkFalconSwerveModule(
         "frontLeft",
         DriveConstants.kFrontLeftDriveMotorPort,
         DriveConstants.kFrontLeftTurningMotorPort,
@@ -56,7 +58,7 @@ public class SwerveDrivetrain extends SubsystemBase {
         DriveConstants.kFrontLeftDriveEncoderReversed,
         DriveConstants.kFrontLeftTurningEncoderReversed);
 
-    m_backLeft = new AndymarkSwerveModuleV2(
+    m_backLeft = new AndymarkFalconSwerveModule(
         "backLeft",
         DriveConstants.kRearLeftDriveMotorPort,
         DriveConstants.kRearLeftTurningMotorPort,
@@ -64,7 +66,7 @@ public class SwerveDrivetrain extends SubsystemBase {
         DriveConstants.kRearLeftDriveEncoderReversed,
         DriveConstants.kRearLeftTurningEncoderReversed);
 
-    m_frontRight = new AndymarkSwerveModuleV2(
+    m_frontRight = new AndymarkFalconSwerveModule(
         "frontRight",
         DriveConstants.kFrontRightDriveMotorPort,
         DriveConstants.kFrontRightTurningMotorPort,
@@ -72,7 +74,7 @@ public class SwerveDrivetrain extends SubsystemBase {
         DriveConstants.kFrontRightDriveEncoderReversed,
         DriveConstants.kFrontRightTurningEncoderReversed);
 
-    m_backRight = new AndymarkSwerveModuleV2(
+    m_backRight = new AndymarkFalconSwerveModule(
         "backRight",
         DriveConstants.kRearRightDriveMotorPort,
         DriveConstants.kRearRightTurningMotorPort,

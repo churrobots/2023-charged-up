@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.helpers.swerve;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -25,30 +25,42 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.ModuleConstants;
 
-public class AndymarkSwerveModuleV2 extends BaseSwerveModule {
+public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   private final String moduleIdentifier;
   private final WPI_TalonFX driveMotor;
   private final WPI_VictorSPX m_turningMotor;
 
   private final AnalogEncoder m_turningEncoder;
 
+  private final double kPModuleDriveController = 1;
+  private final double kPModuleTurningController = 1;
+  private final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
+  private final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
+  private final double driveGearRatio = 6.67;
+  private final double driveWheelRadiusInInches = 2;
+
+  // The Falcon 500s have a Talon FX Integrated sensor, which is rated for 2048
+  // units per rotation:
+  // https://docs.ctre-phoenix.com/en/latest/ch14_MCSensor.html#sensor-resolution
+  private final int sensorUnitsPerRevolution = 2048;
+
   // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_drivePIDController = new PIDController(ModuleConstants.kPModuleDriveController, 0, 0);
+  private final PIDController m_drivePIDController = new PIDController(kPModuleDriveController, 0, 0);
 
   // Using a TrapezoidProfile PIDController to allow for smooth turning
   private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(
-      ModuleConstants.kPModuleTurningController,
+      kPModuleTurningController,
       0,
       0,
       new TrapezoidProfile.Constraints(
-          ModuleConstants.kMaxModuleAngularSpeedRadiansPerSecond,
-          ModuleConstants.kMaxModuleAngularAccelerationRadiansPerSecondSquared));
+          kMaxModuleAngularSpeedRadiansPerSecond,
+          kMaxModuleAngularAccelerationRadiansPerSecondSquared));
 
   // TODO: Gains are for example purposes only
   private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
   private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
-  public AndymarkSwerveModuleV2(
+  public AndymarkFalconSwerveModule(
       String moduleIdentifier,
       int driveMotorChannel,
       int turningMotorChannel,
@@ -86,9 +98,9 @@ public class AndymarkSwerveModuleV2 extends BaseSwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   private double convertSensorCountsToDistanceInMeters(double sensorCounts) {
-    double motorRotations = (double) sensorCounts / Constants.sensorUnitsPerRevolution;
-    double wheelRotations = motorRotations / Constants.driveGearRatio;
-    double inchesOfRotation = wheelRotations * 2 * Math.PI * Constants.driveWheelRadiusInInches;
+    double motorRotations = (double) sensorCounts / sensorUnitsPerRevolution;
+    double wheelRotations = motorRotations / driveGearRatio;
+    double inchesOfRotation = wheelRotations * 2 * Math.PI * driveWheelRadiusInInches;
     return Units.inchesToMeters(inchesOfRotation);
   }
 

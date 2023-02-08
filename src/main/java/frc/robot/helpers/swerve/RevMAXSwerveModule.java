@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.helpers.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -17,7 +17,7 @@ import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Constants.ModuleConstants;
 
-public class MAXSwerveModule extends BaseSwerveModule {
+public class RevMAXSwerveModule extends BaseSwerveModule {
   private final CANSparkMax m_drivingSparkMax;
   private final CANSparkMax m_turningSparkMax;
 
@@ -36,7 +36,7 @@ public class MAXSwerveModule extends BaseSwerveModule {
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
+  public RevMAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
     m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
     m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
@@ -118,7 +118,6 @@ public class MAXSwerveModule extends BaseSwerveModule {
    *
    * @return The current state of the module.
    */
-  @Override
   public SwerveModuleState getState() {
     // Apply chassis angular offset to the encoder position to get the position
     // relative to the chassis.
@@ -131,7 +130,6 @@ public class MAXSwerveModule extends BaseSwerveModule {
    *
    * @return The current position of the module.
    */
-  @Override
   public SwerveModulePosition getPosition() {
     // Apply chassis angular offset to the encoder position to get the position
     // relative to the chassis.
@@ -145,7 +143,6 @@ public class MAXSwerveModule extends BaseSwerveModule {
    *
    * @param desiredState Desired state with speed and angle.
    */
-  @Override
   public void setDesiredState(SwerveModuleState desiredState) {
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
@@ -164,7 +161,6 @@ public class MAXSwerveModule extends BaseSwerveModule {
   }
 
   /** Zeroes all the SwerveModule encoders. */
-  @Override
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
   }

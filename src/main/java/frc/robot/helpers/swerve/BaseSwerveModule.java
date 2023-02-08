@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.helpers.swerve;
 
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
