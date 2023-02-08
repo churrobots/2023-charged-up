@@ -39,7 +39,7 @@ public class RobotContainer {
 
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.05;
+    public static final double kDriveDeadband = 0.1;
   }
 
   private static final class AutoConstants {
@@ -64,17 +64,26 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    // Configure default commands
-    m_robotDrive.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                true, true),
-            m_robotDrive));
+    // Configure drivetrain
+    var isInCalibrationMode = false;
+    if (isInCalibrationMode) {
+      // TODO: show red alert lights to indicate this is a bad mode for teleop
+      new JoystickButton(m_driverController, Button.kY.value)
+          .whileTrue(new RunCommand(
+              () -> m_robotDrive.assertWheelsArePointedForwardAndStoreCalibration(),
+              m_robotDrive));
+    } else {
+      m_robotDrive.setDefaultCommand(
+          // The left stick controls translation of the robot.
+          // Turning is controlled by the X axis of the right stick.
+          new RunCommand(
+              () -> m_robotDrive.drive(
+                  -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                  -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                  -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                  true, true),
+              m_robotDrive));
+    }
   }
 
   /**
@@ -90,10 +99,6 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kRightBumper.value)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
-            m_robotDrive));
-    new JoystickButton(m_driverController, Button.kY.value)
-        .onTrue(new RunCommand(
-            () -> m_robotDrive.assertWheelsArePointedForwardAndStoreCalibration(),
             m_robotDrive));
   }
 
