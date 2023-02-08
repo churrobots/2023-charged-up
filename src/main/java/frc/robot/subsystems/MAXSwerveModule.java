@@ -163,38 +163,9 @@ public class MAXSwerveModule extends BaseSwerveModule {
     m_desiredState = desiredState;
   }
 
-  @Override
-  public void setDesiredPosition(SwerveModulePosition desiredPosition) {
-    // Apply chassis angular offset to the desired state.
-    SwerveModulePosition correctedDesiredPosition = new SwerveModulePosition();
-    // correctedDesiredPosition.speedMetersPerSecond =
-    // desiredPosition.speedMetersPerSecond;
-    correctedDesiredPosition.angle = desiredPosition.angle.plus(Rotation2d.fromRadians(m_chassisAngularOffset));
-
-    // Optimize the reference state to avoid spinning further than 90 degrees.
-    // SwerveModulePosition
-    // optimizedDesiredPosition =
-    // SwerveModulePosition.optimize(correctedDesiredPosition,
-    // new Rotation2d(m_turningEncoder.getPosition()));
-
-    // Command driving and turning SPARKS MAX towards their respective setpoints.
-    // m_drivingPIDController.setReference(optimizedDesiredPosition.speedMetersPerSecond,
-    // CANSparkMax.ControlType.kVelocity);
-    // m_turningPIDController.setReference(optimizedDesiredPosition.angle.getRadians(),
-    // CANSparkMax.ControlType.kPosition);
-
-    // m_desiredState = desiredPosition;
-  }
-
   /** Zeroes all the SwerveModule encoders. */
   @Override
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
-  }
-
-  // not the actual angle!
-  @Override
-  public Rotation2d getAngle() {
-    return new Rotation2d(0);
   }
 }

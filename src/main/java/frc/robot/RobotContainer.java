@@ -8,8 +8,6 @@
 package frc.robot;
 
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AngleTwister;
-import frc.robot.commands.Bayblade;
 import frc.robot.helpers.Gamepad;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -17,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,9 +25,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import java.lang.Math;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -50,22 +44,12 @@ public class RobotContainer {
 
   // Create the autonomous chooser.
   SendableChooser<Command> autonomousChooser = new SendableChooser<Command>();
-  Command turnButtonY = new AngleTwister(m_robotDrive, 0.0);
-  Command turnButtonB = new AngleTwister(m_robotDrive, Math.PI * 3 / 2);
-  Command turnButtonA = new AngleTwister(m_robotDrive, Math.PI);
-  Command turnButtonX = new AngleTwister(m_robotDrive, Math.PI / 2);
-  Command spin = new Bayblade(m_robotDrive, m_driverController);
 
   public RobotContainer() {
 
     // Enable the camera.
     CameraServer.startAutomaticCapture();
-    driverGamepad.aButton.whileTrue(turnButtonA);
-    driverGamepad.bButton.whileTrue(turnButtonB);
-    driverGamepad.yButton.whileTrue(turnButtonY);
-    driverGamepad.xButton.whileTrue(turnButtonX);
-    driverGamepad.rightBumper.whileTrue(spin);
-    // m_driverController.getRight
+
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
@@ -73,16 +57,10 @@ public class RobotContainer {
         new RunCommand(
             () -> m_robotDrive.drive(
                 // These are intentionally inverted and reversed yay
-                // m_driverController.getLeftX(),
-                // -m_driverController.getLeftY(),
-                // -m_driverController.getRightX(),
-
-                MathUtil.applyDeadband(m_driverController.getLeftX(),
-                    Constants.joystickDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftY(),
-                    Constants.joystickDeadband),
-                0,
-                true, true),
+                -m_driverController.getLeftX(),
+                m_driverController.getLeftY(),
+                -m_driverController.getRightX(),
+                true),
             m_robotDrive));
 
     // autonomousChooser.setDefaultOption("1-ball Auto: Drive, Wait, Dump",
@@ -93,12 +71,6 @@ public class RobotContainer {
 
     // Show all the subsystems in the smartdashboard.
     SmartDashboard.putData(CommandScheduler.getInstance());
-  }
-
-  private double getDesireRotation() {
-    double angle = Math.atan2(m_driverController.getRightY(), m_driverController.getRightX());
-    angle /= (Math.PI);
-    return angle;
   }
 
   public Command getAutonomousCommand() {
@@ -127,7 +99,7 @@ public class RobotContainer {
 
     // // Run path following command, then stop at the end.
     // return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0,
-    // false), false);
+    // false));
     return autonomousChooser.getSelected();
   }
 

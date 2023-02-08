@@ -104,79 +104,30 @@ public class AndymarkSwerveModule extends BaseSwerveModule {
     return Units.inchesToMeters(inchesOfRotation);
   }
 
-  private double getTurningRadians() {
+  // TODO: remove this
+  public double getTurningRadians() {
     return m_turningEncoder.getDistance();
   }
 
-  // private double getAbsPostition() {
-  // return m_turningEncoder.getAbsolutePosition();
-  // }
+  // TODO: remove this
+  public double getAbsPostition() {
+    return m_turningEncoder.getAbsolutePosition();
+  }
 
   /**
    * Returns the current state of the module.
    *
    * @return The current state of the module.
    */
-  // @Override
-  // public SwerveModuleState getState() {
-  // return new SwerveModuleState(driveMotor.getSelectedSensorVelocity(), new
-  // Rotation2d(getTurningRadians()));
-  // }
-
-  // @Override
-  // public SwerveModulePosition getPosition() {
-  // return new
-  // SwerveModulePosition(convertSensorCountsToDistanceInMeters(driveMotor.getSelectedSensorVelocity()),
-  // new Rotation2d(getTurningRadians()));
-  // }
-
   @Override
   public SwerveModuleState getState() {
-    return new SwerveModuleState(
-        falconToMPS(driveMotor.getSelectedSensorVelocity(),
-            Constants.ModuleConstants.kWheelCircumferenceMeters,
-            Constants.driveGearRatio),
-        new Rotation2d(getTurningRadians()));
+    return new SwerveModuleState(driveMotor.getSelectedSensorVelocity(), new Rotation2d(getTurningRadians()));
   }
 
   @Override
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(
-        falconToMeters(driveMotor.getSelectedSensorPosition(),
-            Constants.ModuleConstants.kWheelCircumferenceMeters,
-            Constants.driveGearRatio),
+    return new SwerveModulePosition(convertSensorCountsToDistanceInMeters(driveMotor.getSelectedSensorVelocity()),
         new Rotation2d(getTurningRadians()));
-  }
-
-  public static double falconToDegrees(double positionCounts, double gearRatio) {
-    return positionCounts * (360.0 / (gearRatio * 2048.0));
-  }
-
-  public static double RPMToFalcon(double RPM, double gearRatio) {
-    double motorRPM = RPM * gearRatio;
-    double sensorCounts = motorRPM * (2048.0 / 600.0);
-    return sensorCounts;
-  }
-
-  public static double falconToRPM(double velocityCounts, double gearRatio) {
-    double motorRPM = velocityCounts * (600.0 / 2048.0);
-    double mechRPM = motorRPM / gearRatio;
-    return mechRPM;
-  }
-
-  public static double falconToMPS(double velocitycounts, double circumference, double gearRatio) {
-    double wheelRPM = falconToRPM(velocitycounts, gearRatio);
-    double wheelMPS = (wheelRPM * circumference) / 60;
-    return wheelMPS;
-  }
-
-  public static double falconToMeters(double positionCounts, double circumference, double gearRatio) {
-    return positionCounts * (circumference / (gearRatio * 2048.0));
-  }
-
-  @Override
-  public Rotation2d getAngle() {
-    return getState().angle;
   }
 
   @Override
@@ -197,30 +148,6 @@ public class AndymarkSwerveModule extends BaseSwerveModule {
 
     // Calculate the turning motor output from the turning PID controller.
     driveMotor.set(driveOutput);
-    m_turningMotor.set(turnOutput);
-  }
-
-  @Override
-  public void setDesiredPosition(SwerveModulePosition desiredPosition) {
-    // // Optimize the reference state to avoid spinning further than 90 degrees
-    // SwerveModuleState optimizedDesiredState =
-    // SwerveModulePosition.optimize(desiredPosition,
-    // new Rotation2d(getTurningRadians()));
-
-    // // Calculate the drive output from the drive PID controller.
-    // double actualMetersPerSecond = driveMotor.getSelectedSensorVelocity();
-    // actualMetersPerSecond =
-    // convertSensorCountsToDistanceInMeters(actualMetersPerSecond);
-    // final double driveOutput =
-    // m_drivePIDController.calculate(actualMetersPerSecond,
-    // optimizedDesiredState.speedMetersPerSecond);
-
-    // Calculate the turning motor output from the turning PID controller.
-    final double turnOutput = m_turningPIDController.calculate(getTurningRadians(),
-        desiredPosition.angle.getRadians());
-
-    // // Calculate the turning motor output from the turning PID controller.
-    // driveMotor.set(driveOutput);
     m_turningMotor.set(turnOutput);
   }
 
