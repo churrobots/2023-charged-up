@@ -126,7 +126,8 @@ public class AndymarkSwerveModule extends BaseSwerveModule {
 
   @Override
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(convertSensorCountsToDistanceInMeters(driveMotor.getSelectedSensorVelocity()),
+    return new SwerveModulePosition(
+        convertSensorCountsToDistanceInMeters(driveMotor.getSelectedSensorPosition()),
         new Rotation2d(getTurningRadians()));
   }
 
