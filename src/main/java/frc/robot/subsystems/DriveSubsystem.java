@@ -30,7 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontLeftTurningEncoderPortsjr,
       DriveConstants.kFrontLeftDriveEncoderReversed,
       DriveConstants.kFrontLeftTurningEncoderReversed,
-      0.359270);
+      2.217730 / 2 * Math.PI);
 
   private final AndymarkSwerveModule m_rearLeft = new AndymarkSwerveModule(
       DriveConstants.kRearLeftDriveMotorPort,
@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearLeftTurningEncoderPortsjr,
       DriveConstants.kRearLeftDriveEncoderReversed,
       DriveConstants.kRearLeftTurningEncoderReversed,
-      0.309556);
+      1.422184 / (2 * Math.PI));
 
   private final AndymarkSwerveModule m_frontRight = new AndymarkSwerveModule(
       DriveConstants.kFrontRightDriveMotorPort,
@@ -46,7 +46,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontRightTurningEncoderPortsjr,
       DriveConstants.kFrontRightDriveEncoderReversed,
       DriveConstants.kFrontRightTurningEncoderReversed,
-      0.413859);
+      2.475519 / (2 * Math.PI));
 
   private final AndymarkSwerveModule m_rearRight = new AndymarkSwerveModule(
       DriveConstants.kRearRightDriveMotorPort,
@@ -54,7 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningEncoderPortsjr,
       DriveConstants.kRearRightDriveEncoderReversed,
       DriveConstants.kRearRightTurningEncoderReversed,
-      0.235461);
+      1.414083 / (2 * Math.PI));
 
   // create the limiterkMaxAccelerationMetersPerSecondSquared
   private SlewRateLimiter swerveXAccelerationFilterLimiter = new SlewRateLimiter(
@@ -71,7 +71,15 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose
   // FIXME: modulePositions can't be null, needs to represent the actual initial
   // positions
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, getRotation2d(), null);
+  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+      DriveConstants.kDriveKinematics,
+      getRotation2d(),
+      new SwerveModulePosition[] {
+          m_frontLeft.getPosition(),
+          m_frontRight.getPosition(),
+          m_rearLeft.getPosition(),
+          m_rearRight.getPosition()
+      });
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -81,11 +89,13 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     m_odometry.update(
-        getRotation2d(), new SwerveModulePosition[] {
+        getRotation2d(),
+        new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
-            m_rearRight.getPosition() });
+            m_rearRight.getPosition()
+        });
 
     // TODO: remove this
     inspector.set("EncoderLeftFrontX", m_frontLeft.getTurningRadians());
