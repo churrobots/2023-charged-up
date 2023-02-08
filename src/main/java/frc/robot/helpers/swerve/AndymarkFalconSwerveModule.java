@@ -18,16 +18,15 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.helpers.SubsystemInspector;
 
 public class AndymarkFalconSwerveModule extends BaseSwerveModule {
 
   private final SubsystemInspector m_inspector;
+  private final String m_calibratedOffsetPrefKey;
 
-  private final String moduleIdentifier;
   private final WPI_TalonFX driveMotor;
   private final WPI_VictorSPX m_turningMotor;
 
@@ -73,11 +72,12 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
       boolean turningEncoderReversed,
       double chassisAngularOffset) {
 
-    m_inspector = new SubsystemInspector(getSubsystem() + "." + String.valueOf(turningEncoderChannel));
+    // Configure debugging entries in NetworkTables.
+    var debuggingPrefix = getSubsystem() + "." + String.valueOf(turningEncoderChannel);
+    m_inspector = new SubsystemInspector(debuggingPrefix);
+    m_calibratedOffsetPrefKey = debuggingPrefix + ".calibratedOffset";
 
     m_chassisAngularOffset = chassisAngularOffset;
-
-    this.moduleIdentifier = "turningModule" + String.valueOf(turningEncoderChannel);
 
     // Drive motor configuration
     driveMotor = new WPI_TalonFX(driveMotorChannel);
@@ -89,7 +89,7 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
     m_turningMotor = new WPI_VictorSPX(turningMotorChannel);
 
     m_turningEncoder = new AnalogEncoder(turningEncoderChannel);
-    m_turningEncoder.setPositionOffset(_getTurningOffsetEntry().getDouble(0));
+    m_turningEncoder.setPositionOffset(Preferences.getDouble(m_calibratedOffsetPrefKey, 0));
     m_turningEncoder.setDistancePerRotation(2 * Math.PI);
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
@@ -165,15 +165,10 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
     driveMotor.setSelectedSensorPosition(0);
   }
 
-  private NetworkTableEntry _getTurningOffsetEntry() {
-    return SmartDashboard.getEntry("AndymarkSwerveModule.offset." + moduleIdentifier);
-  }
-
   public void assertModuleIsPointedForwardAndStoreCalibration() {
-    var entry = _getTurningOffsetEntry();
-    var offset = Math.abs(m_turningEncoder.getAbsolutePosition() - m_turningEncoder.getPositionOffset());
-    entry.setDouble(offset);
-    entry.setPersistent();
+    m_turningEncoder.reset();
+    var offset = Math.abs(m_turningEncoder.getAbsolutePosition());
+    Preferences.setDouble(m_calibratedOffsetPrefKey, offset);
     m_turningEncoder.setPositionOffset(offset);
   }
 
