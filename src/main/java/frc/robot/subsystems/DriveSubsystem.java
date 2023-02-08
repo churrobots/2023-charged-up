@@ -172,28 +172,32 @@ public class DriveSubsystem extends SubsystemBase {
           TurboSwervoConstants.kFrontLeftTurningCanId,
           TurboSwervoConstants.kFrontLeftTurningEncoderAnalogPort,
           TurboSwervoConstants.kFrontLeftDriveEncoderReversed,
-          TurboSwervoConstants.kFrontLeftTurningEncoderReversed);
+          TurboSwervoConstants.kFrontLeftTurningEncoderReversed,
+          TurboSwervoConstants.kFrontLeftChassisAngularOffset);
 
       m_rearLeft = new AndymarkFalconSwerveModule(
           TurboSwervoConstants.kRearLeftDriveCanId,
           TurboSwervoConstants.kRearLeftTurningCanId,
           TurboSwervoConstants.kRearLeftTurningEncoderAnalogPort,
           TurboSwervoConstants.kRearLeftDriveEncoderReversed,
-          TurboSwervoConstants.kRearLeftTurningEncoderReversed);
+          TurboSwervoConstants.kRearLeftTurningEncoderReversed,
+          TurboSwervoConstants.kRearLeftChassisAngularOffset);
 
       m_frontRight = new AndymarkFalconSwerveModule(
           TurboSwervoConstants.kFrontRightDriveCanId,
           TurboSwervoConstants.kFrontRightTurningCanId,
           TurboSwervoConstants.kFrontRightTurningEncoderAnalogPort,
           TurboSwervoConstants.kFrontRightDriveEncoderReversed,
-          TurboSwervoConstants.kFrontRightTurningEncoderReversed);
+          TurboSwervoConstants.kFrontRightTurningEncoderReversed,
+          TurboSwervoConstants.kFrontRightChassisAngularOffset);
 
       m_rearRight = new AndymarkFalconSwerveModule(
           TurboSwervoConstants.kRearRightDriveCanId,
           TurboSwervoConstants.kRearRightTurningCanId,
           TurboSwervoConstants.kRearRightTurningEncoderAnalogPort,
           TurboSwervoConstants.kRearRightDriveEncoderReversed,
-          TurboSwervoConstants.kRearRightTurningEncoderReversed);
+          TurboSwervoConstants.kRearRightTurningEncoderReversed,
+          TurboSwervoConstants.kRearRightChassisAngularOffset);
 
       m_kinematics = new SwerveDriveKinematics(
           new Translation2d(TurboSwervoConstants.kWheelBase / 2, TurboSwervoConstants.kTrackWidth / 2),
@@ -414,10 +418,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
-    m_frontLeft.resetEncoders();
-    m_rearLeft.resetEncoders();
-    m_frontRight.resetEncoders();
-    m_rearRight.resetEncoders();
+    m_frontLeft.resetDriveEncodersToZero();
+    m_rearLeft.resetDriveEncodersToZero();
+    m_frontRight.resetDriveEncodersToZero();
+    m_rearRight.resetDriveEncodersToZero();
   }
 
   /** Zeroes the heading of the robot. */

@@ -21,13 +21,18 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.helpers.SubsystemInspector;
 
 public class AndymarkFalconSwerveModule extends BaseSwerveModule {
+
+  private final SubsystemInspector m_inspector;
+
   private final String moduleIdentifier;
   private final WPI_TalonFX driveMotor;
   private final WPI_VictorSPX m_turningMotor;
 
   private final AnalogEncoder m_turningEncoder;
+  private final double m_chassisAngularOffset;
 
   private final double kPModuleDriveController = 1;
   private final double kPModuleTurningController = 1;
@@ -65,7 +70,12 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
       int turningMotorChannel,
       int turningEncoderChannel,
       boolean driveEncoderReversed,
-      boolean turningEncoderReversed) {
+      boolean turningEncoderReversed,
+      double chassisAngularOffset) {
+
+    m_inspector = new SubsystemInspector(getSubsystem() + "." + String.valueOf(turningEncoderChannel));
+
+    m_chassisAngularOffset = chassisAngularOffset;
 
     this.moduleIdentifier = "turningModule" + String.valueOf(turningEncoderChannel);
 
@@ -77,9 +87,11 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
 
     // Turning motor configuration
     m_turningMotor = new WPI_VictorSPX(turningMotorChannel);
+
     m_turningEncoder = new AnalogEncoder(turningEncoderChannel);
     m_turningEncoder.setPositionOffset(_getTurningOffsetEntry().getDouble(0));
     m_turningEncoder.setDistancePerRotation(2 * Math.PI);
+
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
@@ -159,10 +171,19 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
 
   public void assertModuleIsPointedForwardAndStoreCalibration() {
     var entry = _getTurningOffsetEntry();
-    var offset = m_turningEncoder.getAbsolutePosition();
+    var offset = Math.abs(m_turningEncoder.getAbsolutePosition() - m_turningEncoder.getPositionOffset());
     entry.setDouble(offset);
     entry.setPersistent();
     m_turningEncoder.setPositionOffset(offset);
+  }
+
+  @Override
+  public void periodic() {
+    m_inspector.set("m_turningEncoder.getAbsolutePosition", m_turningEncoder.getAbsolutePosition());
+    m_inspector.set("m_turningEncoder.get", m_turningEncoder.get());
+    m_inspector.set("m_turningEncoder.getPositionOffset", m_turningEncoder.getPositionOffset());
+    m_inspector.set("m_turningEncoder.getDistance", m_turningEncoder.getDistance());
+    m_inspector.set("m_turningEncoder.getDistancePerRotation", m_turningEncoder.getDistancePerRotation());
   }
 
 }
