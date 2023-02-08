@@ -149,8 +149,7 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   }
 
   /** Zeroes all the SwerveModule encoders. */
-  @Override
-  public void resetEncoders() {
+  public void resetDriveEncodersToZero() {
     driveMotor.setSelectedSensorPosition(0);
   }
 

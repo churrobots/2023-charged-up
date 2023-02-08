@@ -10,7 +10,7 @@ abstract public class BaseSwerveModule {
 
   public abstract void setDesiredState(SwerveModuleState desiredState);
 
-  public abstract void resetEncoders();
+  public abstract void resetDriveEncodersToZero();
 
   public abstract void assertModuleIsPointedForwardAndStoreCalibration();
 

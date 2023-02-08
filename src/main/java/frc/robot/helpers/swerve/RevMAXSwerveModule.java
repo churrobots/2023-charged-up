@@ -223,7 +223,7 @@ public class RevMAXSwerveModule extends BaseSwerveModule {
   }
 
   /** Zeroes all the SwerveModule encoders. */
-  public void resetEncoders() {
+  public void resetDriveEncodersToZero() {
     m_drivingEncoder.setPosition(0);
   }
 
