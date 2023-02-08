@@ -65,6 +65,7 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
   public AndymarkFalconSwerveModule(
+      String moduleIdentifier,
       int driveMotorChannel,
       int turningMotorChannel,
       int turningEncoderChannel,
@@ -73,7 +74,7 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
       double chassisAngularOffset) {
 
     // Configure debugging entries in NetworkTables.
-    var debuggingPrefix = getSubsystem() + "." + String.valueOf(turningEncoderChannel);
+    var debuggingPrefix = getSubsystem() + "." + moduleIdentifier;
     m_inspector = new SubsystemInspector(debuggingPrefix);
     m_calibratedOffsetPrefKey = debuggingPrefix + ".calibratedOffset";
 
@@ -166,9 +167,9 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   }
 
   public void assertModuleIsPointedForwardAndStoreCalibration() {
-    m_turningEncoder.reset();
     var offset = Math.abs(m_turningEncoder.getAbsolutePosition());
     Preferences.setDouble(m_calibratedOffsetPrefKey, offset);
+    m_turningEncoder.reset();
     m_turningEncoder.setPositionOffset(offset);
   }
 

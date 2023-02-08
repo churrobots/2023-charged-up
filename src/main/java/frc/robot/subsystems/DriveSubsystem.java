@@ -168,6 +168,7 @@ public class DriveSubsystem extends SubsystemBase {
       // TurboSwervo is a Falcon-based AndyMark Swerve and Steer
 
       m_frontLeft = new AndymarkFalconSwerveModule(
+          "frontLeft",
           TurboSwervoConstants.kFrontLeftDriveCanId,
           TurboSwervoConstants.kFrontLeftTurningCanId,
           TurboSwervoConstants.kFrontLeftTurningEncoderAnalogPort,
@@ -176,6 +177,7 @@ public class DriveSubsystem extends SubsystemBase {
           TurboSwervoConstants.kFrontLeftChassisAngularOffset);
 
       m_rearLeft = new AndymarkFalconSwerveModule(
+          "rearLeft",
           TurboSwervoConstants.kRearLeftDriveCanId,
           TurboSwervoConstants.kRearLeftTurningCanId,
           TurboSwervoConstants.kRearLeftTurningEncoderAnalogPort,
@@ -184,6 +186,7 @@ public class DriveSubsystem extends SubsystemBase {
           TurboSwervoConstants.kRearLeftChassisAngularOffset);
 
       m_frontRight = new AndymarkFalconSwerveModule(
+          "frontRight",
           TurboSwervoConstants.kFrontRightDriveCanId,
           TurboSwervoConstants.kFrontRightTurningCanId,
           TurboSwervoConstants.kFrontRightTurningEncoderAnalogPort,
@@ -192,6 +195,7 @@ public class DriveSubsystem extends SubsystemBase {
           TurboSwervoConstants.kFrontRightChassisAngularOffset);
 
       m_rearRight = new AndymarkFalconSwerveModule(
+          "rearRight",
           TurboSwervoConstants.kRearRightDriveCanId,
           TurboSwervoConstants.kRearRightTurningCanId,
           TurboSwervoConstants.kRearRightTurningEncoderAnalogPort,
