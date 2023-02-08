@@ -4,68 +4,262 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
+import frc.robot.helpers.swerve.AndymarkFalconSwerveModule;
+import frc.robot.helpers.swerve.BaseSwerveModule;
 import frc.robot.helpers.swerve.RevMAXSwerveModule;
 import frc.robot.helpers.swerve.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
-  // Create MAXSwerveModules
-  private final RevMAXSwerveModule m_frontLeft = new RevMAXSwerveModule(
-      DriveConstants.kFrontLeftDrivingCanId,
-      DriveConstants.kFrontLeftTurningCanId,
-      DriveConstants.kFrontLeftChassisAngularOffset);
 
-  private final RevMAXSwerveModule m_frontRight = new RevMAXSwerveModule(
-      DriveConstants.kFrontRightDrivingCanId,
-      DriveConstants.kFrontRightTurningCanId,
-      DriveConstants.kFrontRightChassisAngularOffset);
+  private final BaseSwerveModule m_frontLeft;
+  private final BaseSwerveModule m_frontRight;
+  private final BaseSwerveModule m_rearLeft;
+  private final BaseSwerveModule m_rearRight;
+  private final Gyro m_gyro;
+  private final SwerveDriveKinematics m_kinematics;
+  private final SlewRateLimiter m_magLimiter;
+  private final SlewRateLimiter m_rotLimiter;
+  private final double m_maxSpeedMetersPerSecond;
+  private final double m_maxAngularSpeedRadiansPerSecond;
+  private final double m_directionSlewRate;
+  private final boolean m_gyroIsReversed;
 
-  private final RevMAXSwerveModule m_rearLeft = new RevMAXSwerveModule(
-      DriveConstants.kRearLeftDrivingCanId,
-      DriveConstants.kRearLeftTurningCanId,
-      DriveConstants.kBackLeftChassisAngularOffset);
+  public static enum WhichDrivebase {
+    TurboSwervo,
+    SpeedyHedgehog
+  }
 
-  private final RevMAXSwerveModule m_rearRight = new RevMAXSwerveModule(
-      DriveConstants.kRearRightDrivingCanId,
-      DriveConstants.kRearRightTurningCanId,
-      DriveConstants.kBackRightChassisAngularOffset);
+  /**
+   * Constants that work for the TurboSwervo drive base.
+   * This includes the CAN configuration as well as dimensions,
+   * max speeds, etc that are particular to TurboSwervo.
+   */
+  private static final class TurboSwervoConstants {
 
-  // The gyro sensor
-  private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+    // Chassis configuration
+    // TODO: get actual numbers, measured center-to-center of the wheels (not frame)
+    public static final double kTrackWidth = Units.inchesToMeters(18.25);
+    public static final double kWheelBase = Units.inchesToMeters(24.5);
+
+    // Driving Parameters - Note that these are not the maximum capable speeds of
+    // the robot, rather the allowed maximum speeds
+    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+
+    public static final double kDirectionSlewRate = 1.2; // radians per second
+    public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
+    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
+
+    // CAN bus configuration
+    public static final int kFrontLeftDriveCanId = 3;
+    public static final int kRearLeftDriveCanId = 1;
+    public static final int kFrontRightDriveCanId = 2;
+    public static final int kRearRightDriveCanId = 4;
+
+    public static final int kFrontLeftTurningCanId = 8;
+    public static final int kRearLeftTurningCanId = 9;
+    public static final int kFrontRightTurningCanId = 6;
+    public static final int kRearRightTurningCanId = 7;
+
+    // Analog encoder configuration
+    public static final int kFrontLeftTurningEncoderAnalogPort = 1;
+    public static final int kRearLeftTurningEncoderAnalogPort = 3;
+    public static final int kFrontRightTurningEncoderAnalogPort = 0;
+    public static final int kRearRightTurningEncoderAnalogPort = 2;
+
+    public static final boolean kFrontLeftTurningEncoderReversed = false;
+    public static final boolean kRearLeftTurningEncoderReversed = true;
+    public static final boolean kFrontRightTurningEncoderReversed = false;
+    public static final boolean kRearRightTurningEncoderReversed = true;
+
+    public static final boolean kFrontLeftDriveEncoderReversed = false;
+    public static final boolean kRearLeftDriveEncoderReversed = true;
+    public static final boolean kFrontRightDriveEncoderReversed = false;
+    public static final boolean kRearRightDriveEncoderReversed = true;
+
+    // Gyro config
+    public static final int kGyroCanId = 5;
+    public static final boolean kGyroReversed = false;
+
+  }
+
+  /**
+   * Constants that work for the SpeedyHedgehog drive base.
+   * This includes the CAN configuration as well as dimensions,
+   * max speeds, etc that are particular to TurboSwervo.
+   */
+  private static final class SpeedyHedgehogConstants {
+
+    // Chassis configuration
+    // TODO: get actual numbers, measured center-to-center of the wheels (not frame)
+    public static final double kTrackWidth = Units.inchesToMeters(22);
+    public static final double kWheelBase = Units.inchesToMeters(27);
+
+    // Driving Parameters - Note that these are not the maximum capable speeds of
+    // the robot, rather the allowed maximum speeds
+    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+
+    public static final double kDirectionSlewRate = 1.2; // radians per second
+    public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
+    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
+
+    // Angular offsets of the modules relative to the chassis in radians
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
+    public static final double kFrontRightChassisAngularOffset = 0;
+    public static final double kBackLeftChassisAngularOffset = Math.PI;
+    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+
+    // SPARK MAX CAN IDs
+    // TODO: get actual CAN bus IDs
+    public static final int kFrontLeftDrivingCanId = 11;
+    public static final int kRearLeftDrivingCanId = 13;
+    public static final int kFrontRightDrivingCanId = 15;
+    public static final int kRearRightDrivingCanId = 17;
+
+    public static final int kFrontLeftTurningCanId = 10;
+    public static final int kRearLeftTurningCanId = 12;
+    public static final int kFrontRightTurningCanId = 14;
+    public static final int kRearRightTurningCanId = 16;
+
+    // Gyro config
+    // TODO: get actual CAN bus ID
+    public static final int kGyroCanId = 5;
+    public static final boolean kGyroReversed = false;
+  }
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
   private double m_currentTranslationDir = 0.0;
   private double m_currentTranslationMag = 0.0;
-
-  private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
-  private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
   // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-      DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(m_gyro.getAngle()),
-      new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_rearLeft.getPosition(),
-          m_rearRight.getPosition()
-      });
+  SwerveDriveOdometry m_odometry;
 
-  /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
+  public DriveSubsystem(WhichDrivebase whichDrivebase) {
+
+    if (whichDrivebase == WhichDrivebase.TurboSwervo) {
+
+      /////////////////////////////////////////////////////////////////
+      // TurboSwervo is a Falcon-based AndyMark Swerve and Steer
+
+      m_frontLeft = new AndymarkFalconSwerveModule(
+          TurboSwervoConstants.kFrontLeftDriveCanId,
+          TurboSwervoConstants.kFrontLeftTurningCanId,
+          TurboSwervoConstants.kFrontLeftTurningEncoderAnalogPort,
+          TurboSwervoConstants.kFrontLeftDriveEncoderReversed,
+          TurboSwervoConstants.kFrontLeftTurningEncoderReversed);
+
+      m_rearLeft = new AndymarkFalconSwerveModule(
+          TurboSwervoConstants.kRearLeftDriveCanId,
+          TurboSwervoConstants.kRearLeftTurningCanId,
+          TurboSwervoConstants.kRearLeftTurningEncoderAnalogPort,
+          TurboSwervoConstants.kRearLeftDriveEncoderReversed,
+          TurboSwervoConstants.kRearLeftTurningEncoderReversed);
+
+      m_frontRight = new AndymarkFalconSwerveModule(
+          TurboSwervoConstants.kFrontRightDriveCanId,
+          TurboSwervoConstants.kFrontRightTurningCanId,
+          TurboSwervoConstants.kFrontRightTurningEncoderAnalogPort,
+          TurboSwervoConstants.kFrontRightDriveEncoderReversed,
+          TurboSwervoConstants.kFrontRightTurningEncoderReversed);
+
+      m_rearRight = new AndymarkFalconSwerveModule(
+          TurboSwervoConstants.kRearRightDriveCanId,
+          TurboSwervoConstants.kRearRightTurningCanId,
+          TurboSwervoConstants.kRearRightTurningEncoderAnalogPort,
+          TurboSwervoConstants.kRearRightDriveEncoderReversed,
+          TurboSwervoConstants.kRearRightTurningEncoderReversed);
+
+      m_kinematics = new SwerveDriveKinematics(
+          new Translation2d(TurboSwervoConstants.kWheelBase / 2, TurboSwervoConstants.kTrackWidth / 2),
+          new Translation2d(TurboSwervoConstants.kWheelBase / 2, -TurboSwervoConstants.kTrackWidth / 2),
+          new Translation2d(-TurboSwervoConstants.kWheelBase / 2, TurboSwervoConstants.kTrackWidth / 2),
+          new Translation2d(-TurboSwervoConstants.kWheelBase / 2, -TurboSwervoConstants.kTrackWidth / 2));
+
+      m_gyro = new WPI_Pigeon2(TurboSwervoConstants.kGyroCanId);
+      m_gyroIsReversed = TurboSwervoConstants.kGyroReversed;
+
+      m_magLimiter = new SlewRateLimiter(TurboSwervoConstants.kMagnitudeSlewRate);
+      m_rotLimiter = new SlewRateLimiter(TurboSwervoConstants.kRotationalSlewRate);
+
+      m_directionSlewRate = TurboSwervoConstants.kDirectionSlewRate;
+      m_maxAngularSpeedRadiansPerSecond = TurboSwervoConstants.kMaxAngularSpeed;
+      m_maxSpeedMetersPerSecond = TurboSwervoConstants.kMaxSpeedMetersPerSecond;
+
+    } else {
+
+      /////////////////////////////////////////////////////////////////
+      // SpeedyHedgehog is a Rev MAXSwerve
+
+      m_frontLeft = new RevMAXSwerveModule(
+          SpeedyHedgehogConstants.kFrontLeftDrivingCanId,
+          SpeedyHedgehogConstants.kFrontLeftTurningCanId,
+          SpeedyHedgehogConstants.kFrontLeftChassisAngularOffset);
+
+      m_frontRight = new RevMAXSwerveModule(
+          SpeedyHedgehogConstants.kFrontRightDrivingCanId,
+          SpeedyHedgehogConstants.kFrontRightTurningCanId,
+          SpeedyHedgehogConstants.kFrontRightChassisAngularOffset);
+
+      m_rearLeft = new RevMAXSwerveModule(
+          SpeedyHedgehogConstants.kRearLeftDrivingCanId,
+          SpeedyHedgehogConstants.kRearLeftTurningCanId,
+          SpeedyHedgehogConstants.kBackLeftChassisAngularOffset);
+
+      m_rearRight = new RevMAXSwerveModule(
+          SpeedyHedgehogConstants.kRearRightDrivingCanId,
+          SpeedyHedgehogConstants.kRearRightTurningCanId,
+          SpeedyHedgehogConstants.kBackRightChassisAngularOffset);
+
+      m_kinematics = new SwerveDriveKinematics(
+          new Translation2d(SpeedyHedgehogConstants.kWheelBase / 2, SpeedyHedgehogConstants.kTrackWidth / 2),
+          new Translation2d(SpeedyHedgehogConstants.kWheelBase / 2, -SpeedyHedgehogConstants.kTrackWidth / 2),
+          new Translation2d(-SpeedyHedgehogConstants.kWheelBase / 2, SpeedyHedgehogConstants.kTrackWidth / 2),
+          new Translation2d(-SpeedyHedgehogConstants.kWheelBase / 2, -SpeedyHedgehogConstants.kTrackWidth / 2));
+
+      m_gyro = new WPI_Pigeon2(SpeedyHedgehogConstants.kGyroCanId);
+      m_gyroIsReversed = SpeedyHedgehogConstants.kGyroReversed;
+
+      m_magLimiter = new SlewRateLimiter(SpeedyHedgehogConstants.kMagnitudeSlewRate);
+      m_rotLimiter = new SlewRateLimiter(SpeedyHedgehogConstants.kRotationalSlewRate);
+
+      m_directionSlewRate = SpeedyHedgehogConstants.kDirectionSlewRate;
+      m_maxAngularSpeedRadiansPerSecond = SpeedyHedgehogConstants.kMaxAngularSpeed;
+      m_maxSpeedMetersPerSecond = SpeedyHedgehogConstants.kMaxSpeedMetersPerSecond;
+    }
+
+    // Slew rate filter variables for controlling lateral acceleration
+    m_currentRotation = 0.0;
+    m_currentTranslationDir = 0.0;
+    m_currentTranslationMag = 0.0;
+
+    m_prevTime = WPIUtilJNI.now() * 1e-6;
+    m_odometry = new SwerveDriveOdometry(
+        m_kinematics,
+        Rotation2d.fromDegrees(m_gyro.getAngle()),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        });
   }
 
   @Override
@@ -131,7 +325,7 @@ public class DriveSubsystem extends SubsystemBase {
       // acceleration
       double directionSlewRate;
       if (m_currentTranslationMag != 0.0) {
-        directionSlewRate = Math.abs(DriveConstants.kDirectionSlewRate / m_currentTranslationMag);
+        directionSlewRate = Math.abs(m_directionSlewRate / m_currentTranslationMag);
       } else {
         directionSlewRate = 500.0; // some high number that means the slew rate is effectively instantaneous
       }
@@ -169,17 +363,17 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    double xSpeedDelivered = xSpeedCommanded * m_maxSpeedMetersPerSecond;
+    double ySpeedDelivered = ySpeedCommanded * m_maxSpeedMetersPerSecond;
+    double rotDelivered = m_currentRotation * m_maxAngularSpeedRadiansPerSecond;
 
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+    var swerveModuleStates = m_kinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 Rotation2d.fromDegrees(m_gyro.getAngle()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        swerveModuleStates, m_maxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -203,7 +397,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        desiredStates, m_maxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
@@ -238,6 +432,17 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    return m_gyro.getRate() * (m_gyroIsReversed ? -1.0 : 1.0);
+  }
+
+  public SwerveDriveKinematics getKinematics() {
+    return m_kinematics;
+  }
+
+  public void assertWheelsArePointedForwardAndStoreCalibration() {
+    m_frontLeft.assertModuleIsPointedForwardAndStoreCalibration();
+    m_frontRight.assertModuleIsPointedForwardAndStoreCalibration();
+    m_rearLeft.assertModuleIsPointedForwardAndStoreCalibration();
+    m_rearRight.assertModuleIsPointedForwardAndStoreCalibration();
   }
 }

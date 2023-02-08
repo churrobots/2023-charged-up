@@ -12,7 +12,6 @@ abstract public class BaseSwerveModule {
 
   public abstract void resetEncoders();
 
-  public void calibrateTurningMotor() {
-    // optionally set some state to be loaded at bootup
-  }
+  public abstract void assertModuleIsPointedForwardAndStoreCalibration();
+
 }

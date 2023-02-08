@@ -22,8 +22,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.Constants.ModuleConstants;
 
 public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   private final String moduleIdentifier;
@@ -61,14 +59,13 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
   public AndymarkFalconSwerveModule(
-      String moduleIdentifier,
       int driveMotorChannel,
       int turningMotorChannel,
       int turningEncoderChannel,
       boolean driveEncoderReversed,
       boolean turningEncoderReversed) {
 
-    this.moduleIdentifier = moduleIdentifier;
+    this.moduleIdentifier = "turningModule" + String.valueOf(turningEncoderChannel);
 
     // Drive motor configuration
     driveMotor = new WPI_TalonFX(driveMotorChannel);
@@ -159,8 +156,7 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
     return SmartDashboard.getEntry("AndymarkSwerveModule.offset." + moduleIdentifier);
   }
 
-  @Override
-  public void calibrateTurningMotor() {
+  public void assertModuleIsPointedForwardAndStoreCalibration() {
     var entry = _getTurningOffsetEntry();
     var offset = m_turningEncoder.getAbsolutePosition();
     entry.setDouble(offset);
