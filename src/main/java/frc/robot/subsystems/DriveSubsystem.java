@@ -56,6 +56,13 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kTrackWidth = Units.inchesToMeters(18.25);
     public static final double kWheelBase = Units.inchesToMeters(24.5);
 
+    // Angular offsets of the modules relative to the chassis in radians
+    // TODO: need to actually calculate these since the robot is not square
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
+    public static final double kFrontRightChassisAngularOffset = 0;
+    public static final double kBackLeftChassisAngularOffset = Math.PI;
+    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
@@ -110,6 +117,13 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kTrackWidth = Units.inchesToMeters(22);
     public static final double kWheelBase = Units.inchesToMeters(27);
 
+    // Angular offsets of the modules relative to the chassis in radians
+    // TODO: need to actually calculate these since the robot is not square
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
+    public static final double kFrontRightChassisAngularOffset = 0;
+    public static final double kBackLeftChassisAngularOffset = Math.PI;
+    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
@@ -118,12 +132,6 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kDirectionSlewRate = 1.2; // radians per second
     public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
-
-    // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
-    public static final double kFrontRightChassisAngularOffset = 0;
-    public static final double kBackLeftChassisAngularOffset = Math.PI;
-    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
     // TODO: get actual CAN bus IDs
