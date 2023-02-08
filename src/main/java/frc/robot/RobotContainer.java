@@ -10,11 +10,13 @@ package frc.robot;
 import frc.robot.Constants.OIConstants;
 import frc.robot.helpers.Gamepad;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.SwerveDrivetrain;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -39,7 +41,7 @@ public class RobotContainer {
   Gamepad driverGamepad = new Gamepad(Constants.driverGamepadPort);
   Gamepad operatorGamepad = new Gamepad(Constants.operatorGamepadPort);
 
-  DriveSubsystem m_robotDrive = new DriveSubsystem();
+  SwerveDrivetrain m_robotDrive = new SwerveDrivetrain();
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
   // Create the autonomous chooser.
@@ -49,6 +51,9 @@ public class RobotContainer {
 
     // Enable the camera.
     CameraServer.startAutomaticCapture();
+
+    // Calibrate (uncomment this and deploy to a calibrated robot)
+    // m_robotDrive.calibrateAllModules();
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(

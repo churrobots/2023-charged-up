@@ -11,4 +11,8 @@ abstract public class BaseSwerveModule {
   public abstract void setDesiredState(SwerveModuleState desiredState);
 
   public abstract void resetEncoders();
+
+  public void calibrateTurningMotor() {
+    // optionally set some state to be loaded at bootup
+  }
 }
