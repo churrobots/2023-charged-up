@@ -33,7 +33,10 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   private final double kPModuleTurningController = 1;
   private final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
   private final double kMaxModuleAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
+
+  // TODO: this should be configurable based on the gear choice
   private final double driveGearRatio = 6.67;
+  // TODO: this should be configurable based on the wheel choice
   private final double driveWheelRadiusInInches = 2;
 
   // The Falcon 500s have a Talon FX Integrated sensor, which is rated for 2048

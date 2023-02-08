@@ -60,8 +60,8 @@ public class DriveSubsystem extends SubsystemBase {
     // TODO: need to actually calculate these since the robot is not square
     public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
     public static final double kFrontRightChassisAngularOffset = 0;
-    public static final double kBackLeftChassisAngularOffset = Math.PI;
-    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+    public static final double kRearLeftChassisAngularOffset = Math.PI;
+    public static final double kRearRightChassisAngularOffset = Math.PI / 2;
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
@@ -121,8 +121,8 @@ public class DriveSubsystem extends SubsystemBase {
     // TODO: need to actually calculate these since the robot is not square
     public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
     public static final double kFrontRightChassisAngularOffset = 0;
-    public static final double kBackLeftChassisAngularOffset = Math.PI;
-    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+    public static final double kRearLeftChassisAngularOffset = Math.PI;
+    public static final double kRearRightChassisAngularOffset = Math.PI / 2;
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
@@ -229,12 +229,12 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearLeft = new RevMAXSwerveModule(
           SpeedyHedgehogConstants.kRearLeftDrivingCanId,
           SpeedyHedgehogConstants.kRearLeftTurningCanId,
-          SpeedyHedgehogConstants.kBackLeftChassisAngularOffset);
+          SpeedyHedgehogConstants.kRearLeftChassisAngularOffset);
 
       m_rearRight = new RevMAXSwerveModule(
           SpeedyHedgehogConstants.kRearRightDrivingCanId,
           SpeedyHedgehogConstants.kRearRightTurningCanId,
-          SpeedyHedgehogConstants.kBackRightChassisAngularOffset);
+          SpeedyHedgehogConstants.kRearRightChassisAngularOffset);
 
       m_kinematics = new SwerveDriveKinematics(
           new Translation2d(SpeedyHedgehogConstants.kWheelBase / 2, SpeedyHedgehogConstants.kTrackWidth / 2),

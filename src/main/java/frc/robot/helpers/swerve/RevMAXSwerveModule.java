@@ -50,8 +50,11 @@ public class RevMAXSwerveModule extends BaseSwerveModule {
 
   // Calculations required for driving motor conversion factors and feed forward
   private final double kDrivingMotorFreeSpeedRps = kNeoMotorFreeSpeedRpm / 60;
+
+  // TODO: this should be configurable based on the wheel choice
   private final double kWheelDiameterMeters = 0.0762;
   private final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
+
   // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
   // teeth on the bevel pinion
   private final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
