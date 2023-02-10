@@ -19,6 +19,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.commands.AngleTwister;
+import frc.robot.commands.Bayblade;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -100,10 +102,34 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(m_driverController, Button.kRightBumper.value)
-        .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
+
+    Command turnButtonY = new AngleTwister(m_robotDrive, 0.0);
+    Command turnButtonB = new AngleTwister(m_robotDrive, Math.PI * 3 / 2);
+    Command turnButtonA = new AngleTwister(m_robotDrive, Math.PI);
+    Command turnButtonX = new AngleTwister(m_robotDrive, Math.PI / 2);
+    Command spin = new Bayblade(m_robotDrive, m_driverController);
+    Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
+
+    var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
+    var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
+    var aButton = new JoystickButton(m_driverController, Button.kA.value);
+    var bButton = new JoystickButton(m_driverController, Button.kB.value);
+    var yButton = new JoystickButton(m_driverController, Button.kY.value);
+    var xButton = new JoystickButton(m_driverController, Button.kX.value);
+
+    aButton.whileTrue(turnButtonA);
+    bButton.whileTrue(turnButtonB);
+    yButton.whileTrue(turnButtonY);
+    xButton.whileTrue(turnButtonX);
+    rightBumper.whileTrue(spin);
+    leftBumper.whileTrue(anchorInPlace);
+
+  }
+
+  private double _old_getDesireRotation() {
+    double angle = Math.atan2(m_driverController.getRightY(), m_driverController.getRightX());
+    angle /= (Math.PI);
+    return angle;
   }
 
   /**

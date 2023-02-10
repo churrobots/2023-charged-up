@@ -433,6 +433,24 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset();
   }
 
+  public Rotation2d getGyroAngle() {
+    return Rotation2d.fromDegrees(m_gyro.getAngle() % 360);
+  }
+
+  public void spinInPlace(Boolean counterclockwise) {
+    double rotDelivered = counterclockwise ? 1 : -1;
+
+    var swerveModuleStates = m_kinematics.toSwerveModuleStates(
+        ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, rotDelivered,
+            Rotation2d.fromDegrees(m_gyro.getAngle())));
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates, m_maxSpeedMetersPerSecond);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
   /**
    * Returns the heading of the robot.
    *

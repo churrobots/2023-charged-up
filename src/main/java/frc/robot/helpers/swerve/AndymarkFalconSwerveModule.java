@@ -134,6 +134,29 @@ public class AndymarkFalconSwerveModule extends BaseSwerveModule {
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
         getDriveEncoderDistanceInMeters(), new Rotation2d(m_turningEncoder.getDistance()));
+
+  }
+
+  private SwerveModuleState _old_getState() {
+    var wheelDiameterInMeters = Units.inchesToMeters(2 * driveWheelRadiusInInches);
+    var wheelCircumferenceInMeters = wheelDiameterInMeters * Math.PI;
+    var velocityCounts = driveMotor.getSelectedSensorVelocity();
+    double motorRPM = velocityCounts * (600.0 / 2048.0);
+    double wheelRPM = motorRPM / driveGearRatio;
+    double wheelMPS = (wheelRPM * wheelCircumferenceInMeters) / 60;
+    return new SwerveModuleState(
+        wheelMPS,
+        new Rotation2d(m_turningEncoder.getDistance()));
+  }
+
+  private SwerveModulePosition _old_getPosition() {
+    var wheelDiameterInMeters = Units.inchesToMeters(2 * driveWheelRadiusInInches);
+    var wheelCircumferenceInMeters = wheelDiameterInMeters * Math.PI;
+    var positionCounts = driveMotor.getSelectedSensorPosition();
+    var positionInMeters = positionCounts * (wheelCircumferenceInMeters / (driveGearRatio * 2048.0));
+    return new SwerveModulePosition(
+        positionInMeters,
+        new Rotation2d(m_turningEncoder.getDistance()));
   }
 
   /**
