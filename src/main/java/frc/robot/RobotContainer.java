@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class RobotContainer {
   // The robot's subsystems
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.TurboSwervo);
+  private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -68,25 +68,18 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Configure drivetrain
-    var isInCalibrationMode = false;
-    if (isInCalibrationMode) {
-      // TODO: show red alert lights to indicate this is a bad mode for teleop
-      new JoystickButton(m_driverController, Button.kY.value)
-          .whileTrue(new RunCommand(
-              () -> m_robotDrive.assertWheelsArePointedForwardAndStoreCalibration(),
-              m_robotDrive));
-    } else {
-      m_robotDrive.setDefaultCommand(
-          // The left stick controls translation of the robot.
-          // Turning is controlled by the X axis of the right stick.
-          new RunCommand(
-              () -> m_robotDrive.drive(
-                  -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                  -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                  -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                  true, true),
-              m_robotDrive));
-    }
+    m_robotDrive.setDefaultCommand(
+        // The left stick controls translation of the robot.
+        // Turning is controlled by the X axis of the right stick.
+        new RunCommand(
+            () -> m_robotDrive.drive(
+                -MathUtil.applyDeadband(m_driverController.getLeftY(),
+                    OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getLeftX(),
+                    OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                true, true),
+            m_robotDrive));
   }
 
   /**
@@ -104,8 +97,8 @@ public class RobotContainer {
     Command turnButtonB = new AngleTwister(m_robotDrive, Math.PI * 3 / 2);
     Command turnButtonA = new AngleTwister(m_robotDrive, Math.PI);
     Command turnButtonX = new AngleTwister(m_robotDrive, Math.PI / 2);
-    Command spin = new Bayblade(m_robotDrive, m_driverController);
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
+    Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
@@ -118,8 +111,8 @@ public class RobotContainer {
     bButton.whileTrue(turnButtonB);
     yButton.whileTrue(turnButtonY);
     xButton.whileTrue(turnButtonX);
-    rightBumper.whileTrue(spin);
     leftBumper.whileTrue(anchorInPlace);
+    rightBumper.whileTrue(resetGyro);
 
   }
 

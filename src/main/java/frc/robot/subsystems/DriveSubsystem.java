@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.swerve.AndymarkFalconSwerveModule;
 import frc.robot.helpers.swerve.BaseSwerveModule;
 import frc.robot.helpers.swerve.RevMAXSwerveModule;
@@ -26,11 +27,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
 
+  private final SubsystemInspector inspector = new SubsystemInspector(getSubsystem());
+
   private final BaseSwerveModule m_frontLeft;
   private final BaseSwerveModule m_frontRight;
   private final BaseSwerveModule m_rearLeft;
   private final BaseSwerveModule m_rearRight;
-  private final Gyro m_gyro;
+  private final WPI_Pigeon2 m_gyro;
   private final SwerveDriveKinematics m_kinematics;
   private final SlewRateLimiter m_magLimiter;
   private final SlewRateLimiter m_rotLimiter;
@@ -100,7 +103,7 @@ public class DriveSubsystem extends SubsystemBase {
     public static final boolean kRearRightDriveEncoderReversed = true;
 
     // Gyro config
-    public static final int kGyroCanId = 5;
+    public static final int kGyroCanId = 9;
     public static final boolean kGyroReversed = false;
 
   }
@@ -135,19 +138,19 @@ public class DriveSubsystem extends SubsystemBase {
 
     // SPARK MAX CAN IDs
     // TODO: get actual CAN bus IDs
-    public static final int kFrontLeftDrivingCanId = 11;
-    public static final int kRearLeftDrivingCanId = 13;
-    public static final int kFrontRightDrivingCanId = 15;
-    public static final int kRearRightDrivingCanId = 17;
+    public static final int kFrontLeftDrivingCanId = 5;
+    public static final int kRearLeftDrivingCanId = 7;
+    public static final int kFrontRightDrivingCanId = 6;
+    public static final int kRearRightDrivingCanId = 8;
 
-    public static final int kFrontLeftTurningCanId = 10;
-    public static final int kRearLeftTurningCanId = 12;
-    public static final int kFrontRightTurningCanId = 14;
-    public static final int kRearRightTurningCanId = 16;
+    public static final int kFrontLeftTurningCanId = 1;
+    public static final int kRearLeftTurningCanId = 3;
+    public static final int kFrontRightTurningCanId = 2;
+    public static final int kRearRightTurningCanId = 4;
 
     // Gyro config
     // TODO: get actual CAN bus ID
-    public static final int kGyroCanId = 5;
+    public static final int kGyroCanId = 9;
     public static final boolean kGyroReversed = false;
   }
 
@@ -280,6 +283,11 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    inspector.set("gyro.yaw", m_gyro.getYaw());
+    inspector.set("gyro.pitch", m_gyro.getPitch());
+    inspector.set("gyro.roll", m_gyro.getRoll());
+
     // Update the odometry in the periodic block
     m_odometry.update(
         Rotation2d.fromDegrees(m_gyro.getAngle()),
@@ -315,6 +323,14 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
+  }
+
+  /**
+   * Resets the gyro as if the robot were facing away from you.
+   * This is helpful for resetting field-oriented driving.
+   */
+  public void resetGyro() {
+    m_gyro.reset();
   }
 
   /**
@@ -423,8 +439,8 @@ public class DriveSubsystem extends SubsystemBase {
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     m_frontLeft.resetDriveEncodersToZero();
-    m_rearLeft.resetDriveEncodersToZero();
     m_frontRight.resetDriveEncodersToZero();
+    m_rearLeft.resetDriveEncodersToZero();
     m_rearRight.resetDriveEncodersToZero();
   }
 
