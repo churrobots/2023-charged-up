@@ -16,8 +16,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.commands.AngleTwister;
-import frc.robot.commands.Bayblade;
+import frc.robot.commands.AngleSnap;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -93,10 +92,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    Command turnButtonY = new AngleTwister(m_robotDrive, 0.0);
-    Command turnButtonB = new AngleTwister(m_robotDrive, Math.PI * 3 / 2);
-    Command turnButtonA = new AngleTwister(m_robotDrive, Math.PI);
-    Command turnButtonX = new AngleTwister(m_robotDrive, Math.PI / 2);
+    Command turnButtonY = new AngleSnap(0, m_robotDrive);
+    Command turnButtonB = new AngleSnap(Math.PI * 3 / 2, m_robotDrive);
+    Command turnButtonA = new AngleSnap(Math.PI, m_robotDrive);
+    Command turnButtonX = new AngleSnap(Math.PI / 2, m_robotDrive);
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
