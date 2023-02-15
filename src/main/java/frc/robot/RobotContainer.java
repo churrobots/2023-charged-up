@@ -99,7 +99,7 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
-    var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
+    var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var aButton = new JoystickButton(m_driverController, Button.kA.value);
     var bButton = new JoystickButton(m_driverController, Button.kB.value);
@@ -111,7 +111,7 @@ public class RobotContainer {
     yButton.whileTrue(turnButtonY);
     xButton.whileTrue(turnButtonX);
     leftBumper.whileTrue(anchorInPlace);
-    rightBumper.whileTrue(resetGyro);
+    startButton.whileTrue(resetGyro);
 
   }
 
