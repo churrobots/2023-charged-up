@@ -115,9 +115,8 @@ public class DriveSubsystem extends SubsystemBase {
   private static final class SpeedyHedgehogConstants {
 
     // Chassis configuration
-    // TODO: get actual numbers, measured center-to-center of the wheels (not frame)
-    public static final double kTrackWidth = Units.inchesToMeters(22);
-    public static final double kWheelBase = Units.inchesToMeters(27);
+    public static final double kTrackWidth = Units.inchesToMeters(18.5);
+    public static final double kWheelBase = Units.inchesToMeters(23.5);
 
     // Angular offsets of the modules relative to the chassis in radians
     // TODO: need to actually calculate these since the robot is not square
@@ -136,7 +135,6 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
 
     // SPARK MAX CAN IDs
-    // TODO: get actual CAN bus IDs
     public static final int kFrontLeftDrivingCanId = 5;
     public static final int kRearLeftDrivingCanId = 7;
     public static final int kFrontRightDrivingCanId = 6;
@@ -148,7 +146,6 @@ public class DriveSubsystem extends SubsystemBase {
     public static final int kRearRightTurningCanId = 4;
 
     // Gyro config
-    // TODO: get actual CAN bus ID
     public static final int kGyroCanId = 9;
     public static final boolean kGyroReversed = false;
   }
