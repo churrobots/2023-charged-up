@@ -32,7 +32,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final BaseSwerveModule m_frontRight;
   private final BaseSwerveModule m_rearLeft;
   private final BaseSwerveModule m_rearRight;
-  private final WPI_Pigeon2 m_gyro;
+  public final WPI_Pigeon2 m_gyro;
   private final SwerveDriveKinematics m_kinematics;
   private final SlewRateLimiter m_magLimiter;
   private final SlewRateLimiter m_rotLimiter;
@@ -129,6 +129,9 @@ public class DriveSubsystem extends SubsystemBase {
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+
+    public static final double kTurboMaxSpeedMetersPerSecond = 6;
+    public static final double kTurboMaxAngularSpeed = 3 * Math.PI; // radians per second
 
     public static final double kDirectionSlewRate = 1.2; // radians per second
     public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
@@ -268,7 +271,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_prevTime = WPIUtilJNI.now() * 1e-6;
     m_odometry = new SwerveDriveOdometry(
         m_kinematics,
-        Rotation2d.fromDegrees(m_gyro.getAngle()),
+        getGyroAngle(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -283,10 +286,11 @@ public class DriveSubsystem extends SubsystemBase {
     inspector.set("gyro.yaw", m_gyro.getYaw());
     inspector.set("gyro.pitch", m_gyro.getPitch());
     inspector.set("gyro.roll", m_gyro.getRoll());
+    inspector.set("gyro.angle", m_gyro.getAngle());
 
     // Update the odometry in the periodic block
     m_odometry.update(
-        Rotation2d.fromDegrees(m_gyro.getAngle()),
+        getGyroAngle(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -311,7 +315,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(
-        Rotation2d.fromDegrees(m_gyro.getAngle()),
+        getGyroAngle(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -398,7 +402,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = m_kinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(m_gyro.getAngle()))
+                getGyroAngle())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, m_maxSpeedMetersPerSecond);
@@ -446,21 +450,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Rotation2d getGyroAngle() {
-    return Rotation2d.fromDegrees(m_gyro.getAngle() % 360);
-  }
-
-  public void spinInPlace(Boolean counterclockwise) {
-    double rotDelivered = counterclockwise ? 1 : -1;
-
-    var swerveModuleStates = m_kinematics.toSwerveModuleStates(
-        ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, rotDelivered,
-            Rotation2d.fromDegrees(m_gyro.getAngle())));
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, m_maxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+    return Rotation2d.fromDegrees(m_gyro.getAngle() % 360 * -1);
   }
 
   /**
@@ -469,7 +459,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return Rotation2d.fromDegrees(m_gyro.getAngle()).getDegrees();
+    return getGyroAngle().getDegrees();
   }
 
   /**

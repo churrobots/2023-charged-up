@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.commands.AngleSnap;
+import frc.robot.commands.JengaBalance;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,9 +38,12 @@ public class RobotContainer {
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorrControllerPort = 1;
+
     public static final double kDriveDeadband = 0.1;
   }
 
@@ -93,15 +97,19 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     Command turnButtonY = new AngleSnap(0, m_robotDrive);
-    Command turnButtonB = new AngleSnap(Math.PI * 3 / 2, m_robotDrive);
-    Command turnButtonA = new AngleSnap(Math.PI, m_robotDrive);
-    Command turnButtonX = new AngleSnap(Math.PI / 2, m_robotDrive);
+    Command turnButtonB = new AngleSnap(-90, m_robotDrive);
+    Command turnButtonA = new AngleSnap(180, m_robotDrive);
+    Command turnButtonX = new AngleSnap(90, m_robotDrive);
+    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro);
+
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
+    var backButton = new JoystickButton(m_driverController, Button.kBack.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
+
     var aButton = new JoystickButton(m_driverController, Button.kA.value);
     var bButton = new JoystickButton(m_driverController, Button.kB.value);
     var yButton = new JoystickButton(m_driverController, Button.kY.value);
@@ -111,6 +119,8 @@ public class RobotContainer {
     bButton.whileTrue(turnButtonB);
     yButton.whileTrue(turnButtonY);
     xButton.whileTrue(turnButtonX);
+    backButton.whileTrue(setBalance);
+
     leftBumper.whileTrue(anchorInPlace);
     rightBumper.whileTrue(anchorInPlace);
     startButton.whileTrue(resetGyro);
