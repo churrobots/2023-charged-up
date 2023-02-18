@@ -13,17 +13,31 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
+import frc.robot.commands.MoveArm;
+import frc.robot.commands.RollBoth;
+import frc.robot.commands.RollSingle;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
+import frc.robot.subsystems.Arm;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 /*
@@ -35,6 +49,9 @@ import java.util.List;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
+  Arm ChaosArm = new Arm();
+  private final Intake topChiliDogGrab = new Intake(10, true);
+  private final Intake bottomChiliDogGrab = new Intake(11, false);
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -83,6 +100,11 @@ public class RobotContainer {
                 -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
                 true, true),
             m_robotDrive));
+
+    SmartDashboard.putData((m_robotDrive));
+    SmartDashboard.putData((topChiliDogGrab));
+    SmartDashboard.putData((bottomChiliDogGrab));
+    SmartDashboard.putData((ChaosArm));
   }
 
   /**
@@ -105,6 +127,11 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
+    Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab, topChiliDogGrab);
+    Command rollTop = new RollSingle(ChaosArm, topChiliDogGrab);
+    Command rollBottom = new RollSingle(ChaosArm, bottomChiliDogGrab);
+    Command moveArm = new MoveArm(ChaosArm, m_operatorController);
+
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
@@ -114,6 +141,11 @@ public class RobotContainer {
     var bButton = new JoystickButton(m_driverController, Button.kB.value);
     var yButton = new JoystickButton(m_driverController, Button.kY.value);
     var xButton = new JoystickButton(m_driverController, Button.kX.value);
+
+    var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
+    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
+    var xOpButton = new JoystickButton(m_operatorController, Button.kY.value);
+    var opJoystick = new JoystickButton(m_operatorController, Button.kLeftStick.value);
 
     aButton.whileTrue(turnButtonA);
     bButton.whileTrue(turnButtonB);
@@ -125,12 +157,22 @@ public class RobotContainer {
     rightBumper.whileTrue(anchorInPlace);
     startButton.whileTrue(resetGyro);
 
+    aOpButton.whileTrue(rollTop);
+    bOpButton.whileTrue(rollBottom);
+    xOpButton.whileTrue(rollBoth);
+    opJoystick.whileTrue(moveArm);
   }
 
-  private double _old_getDesireRotation() {
-    double angle = Math.atan2(m_driverController.getRightY(), m_driverController.getRightX());
-    angle /= (Math.PI);
-    return angle;
+  public Trajectory getTrajectory(String trajectoryJSON) {
+
+    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+    Trajectory trajectory = new Trajectory();
+    try {
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException err) {
+      DriverStation.reportError("broken!!!", err.getStackTrace());
+    }
+    return trajectory;
   }
 
   /**
@@ -146,22 +188,14 @@ public class RobotContainer {
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(m_robotDrive.getKinematics());
 
-    // An example trajectory to follow. All units in meters.
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
-        config);
-
     var thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+    Trajectory moveToBall = getTrajectory("pathplanner/generatedJSON/AfterTheDust.wpilib.json");
+
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        exampleTrajectory,
+        moveToBall,
         m_robotDrive::getPose, // Functional interface to feed supplier
         m_robotDrive.getKinematics(),
 
@@ -173,9 +207,10 @@ public class RobotContainer {
         m_robotDrive);
 
     // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+    m_robotDrive.resetOdometry(moveToBall.getInitialPose());
 
     // Run path following command, then stop at the end.
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));
   }
+
 }
