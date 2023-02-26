@@ -18,6 +18,7 @@ import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.Tunables;
 
 public class Arm extends SubsystemBase {
+
   public static final int falconArmCAN = 12;
   public static final int armSensorDIO = 9;
 
@@ -105,8 +106,6 @@ public class Arm extends SubsystemBase {
   public void move(Double sensorCountsFromUp) {
     if (!isCalibrating && !isEstop) {
       this.armMotor.set(TalonFXControlMode.Velocity, sensorCountsFromUp);
-      inspector.set("move", sensorCountsFromUp);
-      // mostRecentArmSensorCountTarget = sensorCountsFromUp;
     }
   }
 
@@ -121,7 +120,7 @@ public class Arm extends SubsystemBase {
       configureMotionMagic();
     }
 
-    makeItSafePlease(); // no -Maynor
+    makeItSafePlease();
 
     // Coast when disabled, and also make sure arm freshly moves to the upward
     // position upon enabling

@@ -7,19 +7,14 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
@@ -28,9 +23,10 @@ import frc.robot.commands.RollBoth;
 import frc.robot.commands.RollSingle;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake2;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import frc.robot.subsystems.Arm;
-
+import frc.robot.subsystems.Arm2;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -38,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -49,9 +44,13 @@ import java.util.List;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
-  Arm ChaosArm = new Arm();
-  private final Intake topChiliDogGrab = new Intake(10, true);
-  private final Intake bottomChiliDogGrab = new Intake(11, false);
+  // Arm ChaosArm = new Arm();
+
+  Arm2 armTheSecond = new Arm2();
+  Intake2 intakeTheSecond = new Intake2();
+
+  // private final Intake topChiliDogGrab = new Intake(10, true);
+  // private final Intake bottomChiliDogGrab = new Intake(11, false);
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -101,10 +100,14 @@ public class RobotContainer {
                 true, true),
             m_robotDrive));
 
+    var stopArm = new RunCommand(armTheSecond::stop, armTheSecond);
+    armTheSecond.setDefaultCommand(stopArm);
+
+    var stopRollers = new RunCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
+    intakeTheSecond.setDefaultCommand(stopRollers);
+
     SmartDashboard.putData((m_robotDrive));
-    SmartDashboard.putData((topChiliDogGrab));
-    SmartDashboard.putData((bottomChiliDogGrab));
-    SmartDashboard.putData((ChaosArm));
+
   }
 
   /**
@@ -127,10 +130,17 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
-    Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab, topChiliDogGrab);
-    Command rollTop = new RollSingle(ChaosArm, topChiliDogGrab);
-    Command rollBottom = new RollSingle(ChaosArm, bottomChiliDogGrab);
-    Command moveArm = new MoveArm(ChaosArm, m_operatorController);
+    Command runArmUp = new RunCommand(armTheSecond::moveUp, armTheSecond);
+    Command runArmDown = new RunCommand(armTheSecond::moveDown, armTheSecond);
+
+    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, armTheSecond);
+    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, armTheSecond);
+
+    // Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab,
+    // topChiliDogGrab);
+    // Command rollTop = new RollSingle(ChaosArm, topChiliDogGrab);
+    // Command rollBottom = new RollSingle(ChaosArm, bottomChiliDogGrab);
+    // Command moveArm = new MoveArm(ChaosArm, m_operatorController);
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
@@ -144,8 +154,8 @@ public class RobotContainer {
 
     var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
     var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
-    var xOpButton = new JoystickButton(m_operatorController, Button.kY.value);
-    var opJoystick = new JoystickButton(m_operatorController, Button.kLeftStick.value);
+    var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
+    var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
 
     aButton.whileTrue(turnButtonA);
     bButton.whileTrue(turnButtonB);
@@ -157,10 +167,15 @@ public class RobotContainer {
     rightBumper.whileTrue(anchorInPlace);
     startButton.whileTrue(resetGyro);
 
-    aOpButton.whileTrue(rollTop);
-    bOpButton.whileTrue(rollBottom);
-    xOpButton.whileTrue(rollBoth);
-    opJoystick.whileTrue(moveArm);
+    aOpButton.whileTrue(runArmUp);
+    yOpButton.whileTrue(runArmDown);
+    bOpButton.whileTrue(yeet);
+    xOpButton.whileTrue(yoink);
+
+    // aOpButton.whileTrue(rollTop);
+    // bOpButton.whileTrue(rollBottom);
+    // yOpButton.whileTrue(rollBoth);
+    // xOpButton.whileTrue(moveArm);
   }
 
   public Trajectory getTrajectory(String trajectoryJSON) {

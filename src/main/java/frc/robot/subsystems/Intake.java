@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.Tunables;
-import frc.robot.helpers.Tuner.TunableDouble;
 
 public class Intake extends SubsystemBase {
   public static final double collectionSpeedPercentage = 0.75;
