@@ -15,9 +15,10 @@ import frc.robot.helpers.FalconHelper;
 import frc.robot.helpers.SubsystemInspector;
 
 public class Arm2 extends SubsystemBase {
-  /** Creates a new Arm2. */
+
   private static final class Constants {
     private static final int armCanID = 12;
+    private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
@@ -40,26 +41,36 @@ public class Arm2 extends SubsystemBase {
         0);
   }
 
-  public void manuallyCalibrate() {
-    armMotor.set(TalonFXControlMode.PercentOutput, -.10);
+  private void safeRunMotor(TalonFXControlMode mode, double value) {
+    if (m_isCalibrated) {
+      armMotor.set(mode, value);
+    }
+  }
+
+  public void resetCalibration() {
     armMotor.setSelectedSensorPosition(0);
     m_isCalibrated = true;
   }
 
+  public void moveIntoCalibrationPosition() {
+    m_isCalibrated = false;
+    armMotor.set(TalonFXControlMode.Velocity, Constants.calibrationVelocitySensorUnitsPerSecond);
+  }
+
   public void moveUp() {
-    armMotor.set(TalonFXControlMode.PercentOutput, -.15);
+    safeRunMotor(TalonFXControlMode.PercentOutput, -.15);
   }
 
   public void moveDown() {
-    armMotor.set(TalonFXControlMode.PercentOutput, .15);
+    safeRunMotor(TalonFXControlMode.PercentOutput, .15);
   }
 
   public void receiveFromSingleSubstation() {
-    armMotor.set(TalonFXControlMode.MotionMagic, 10000);
+    safeRunMotor(TalonFXControlMode.MotionMagic, 10000);
   }
 
   public void stop() {
-    armMotor.set(TalonFXControlMode.PercentOutput, 0);
+    safeRunMotor(TalonFXControlMode.PercentOutput, 0);
   }
 
   @Override

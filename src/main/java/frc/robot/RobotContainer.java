@@ -135,10 +135,11 @@ public class RobotContainer {
     Command runArmUp = new RunCommand(armTheSecond::moveUp, armTheSecond);
     Command runArmDown = new RunCommand(armTheSecond::moveDown, armTheSecond);
 
-    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, armTheSecond);
-    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, armTheSecond);
+    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
+    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond);
 
-    Command manuallyCalibrateArm = new RunCommand(armTheSecond::manuallyCalibrate, armTheSecond);
+    Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
+    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
     Command receiveFromSingleSubstation = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
 
     // Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab,
@@ -173,11 +174,13 @@ public class RobotContainer {
     var rightShoulderOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
+    var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
 
     leftBumperOpButton.whileTrue(receiveFromSingleSubstation);
     rightShoulderOpButton.whileTrue(yeet);
     xOpButton.whileTrue(yoink);
-    startOpButton.whileTrue(manuallyCalibrateArm);
+    backOpButton.whileTrue(moveArmIntoCalibration);
+    startOpButton.whileTrue(resetArmCalibration);
 
     // aOpButton.whileTrue(rollTop);
     // bOpButton.whileTrue(rollBottom);
