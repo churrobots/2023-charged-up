@@ -106,7 +106,9 @@ public class RobotContainer {
     var stopRollers = new RunCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
     intakeTheSecond.setDefaultCommand(stopRollers);
 
-    SmartDashboard.putData((m_robotDrive));
+    SmartDashboard.putData(m_robotDrive);
+    SmartDashboard.putData(armTheSecond);
+    SmartDashboard.putData(intakeTheSecond);
 
   }
 
@@ -136,6 +138,9 @@ public class RobotContainer {
     Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, armTheSecond);
     Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, armTheSecond);
 
+    Command manuallyCalibrateArm = new RunCommand(armTheSecond::manuallyCalibrate, armTheSecond);
+    Command receiveFromSingleSubstation = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
+
     // Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab,
     // topChiliDogGrab);
     // Command rollTop = new RollSingle(ChaosArm, topChiliDogGrab);
@@ -147,15 +152,11 @@ public class RobotContainer {
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
 
+    // Driver
     var aButton = new JoystickButton(m_driverController, Button.kA.value);
     var bButton = new JoystickButton(m_driverController, Button.kB.value);
     var yButton = new JoystickButton(m_driverController, Button.kY.value);
     var xButton = new JoystickButton(m_driverController, Button.kX.value);
-
-    var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
-    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
-    var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
-    var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
 
     aButton.whileTrue(turnButtonA);
     bButton.whileTrue(turnButtonB);
@@ -167,10 +168,16 @@ public class RobotContainer {
     rightBumper.whileTrue(anchorInPlace);
     startButton.whileTrue(resetGyro);
 
-    aOpButton.whileTrue(runArmUp);
-    yOpButton.whileTrue(runArmDown);
-    bOpButton.whileTrue(yeet);
+    // Operator
+    var leftBumperOpButton = new JoystickButton(m_operatorController, Button.kLeftBumper.value);
+    var rightShoulderOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
+    var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
+    var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
+
+    leftBumperOpButton.whileTrue(receiveFromSingleSubstation);
+    rightShoulderOpButton.whileTrue(yeet);
     xOpButton.whileTrue(yoink);
+    startOpButton.whileTrue(manuallyCalibrateArm);
 
     // aOpButton.whileTrue(rollTop);
     // bOpButton.whileTrue(rollBottom);

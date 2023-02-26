@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.helpers.SubsystemInspector;
 
 public class Intake2 extends SubsystemBase {
   private static final class Constants {
@@ -14,6 +15,7 @@ public class Intake2 extends SubsystemBase {
     private static final int bottomRollerMotorID = 11;
   }
 
+  private final SubsystemInspector inspector = new SubsystemInspector(getSubsystem());
   private final WPI_VictorSPX topCubeYoinker = new WPI_VictorSPX(Constants.topRollerMotorID);
   private final WPI_VictorSPX bottomCubeYoinker = new WPI_VictorSPX(Constants.bottomRollerMotorID);
 
@@ -21,16 +23,19 @@ public class Intake2 extends SubsystemBase {
   }
 
   public void yoinkTheCubes() {
+    inspector.set("activity", "yoinkTheCubes");
     topCubeYoinker.set(.75);
     bottomCubeYoinker.set(.75);
   }
 
   public void yeetTheCubes() {
+    inspector.set("activity", "yeetTheCubes");
     topCubeYoinker.set(-.75);
     bottomCubeYoinker.set(-.75);
   }
 
   public void stopThePlan() {
+    inspector.set("activity", "stopThePlan");
     topCubeYoinker.set(0);
     bottomCubeYoinker.set(0);
   }
