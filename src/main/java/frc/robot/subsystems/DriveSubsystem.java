@@ -146,6 +146,8 @@ public class DriveSubsystem extends SubsystemBase {
     public static final int kFrontLeftTurningCanId = 1;
     public static final int kRearLeftTurningCanId = 3;
     public static final int kFrontRightTurningCanId = 2;
+    // TODO: we got this error one day, causes turning to "twitch" periodically
+    // https://www.chiefdelphi.com/t/vmx-pi-can-spark-max-ids-1-timed-out-while-waiting-for-periodic-status-0/402177/8
     public static final int kRearRightTurningCanId = 4;
 
     // Gyro config
