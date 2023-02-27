@@ -6,13 +6,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.FalconHelper;
-import frc.robot.helpers.SubsystemInspector;
 
 public class Arm2 extends SubsystemBase {
 
@@ -21,7 +19,6 @@ public class Arm2 extends SubsystemBase {
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
   }
 
-  private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
 
@@ -41,7 +38,7 @@ public class Arm2 extends SubsystemBase {
         0);
   }
 
-  private void safeRunMotor(TalonFXControlMode mode, double value) {
+  private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
       armMotor.set(mode, value);
     }
@@ -58,19 +55,19 @@ public class Arm2 extends SubsystemBase {
   }
 
   public void moveUp() {
-    safeRunMotor(TalonFXControlMode.PercentOutput, -.15);
+    runMotorWithSafety(TalonFXControlMode.PercentOutput, -.15);
   }
 
   public void moveDown() {
-    safeRunMotor(TalonFXControlMode.PercentOutput, .15);
+    runMotorWithSafety(TalonFXControlMode.PercentOutput, .15);
   }
 
   public void receiveFromSingleSubstation() {
-    safeRunMotor(TalonFXControlMode.MotionMagic, 10000);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
   }
 
   public void stop() {
-    safeRunMotor(TalonFXControlMode.PercentOutput, 0);
+    armMotor.set(TalonFXControlMode.PercentOutput, 0);
   }
 
   @Override

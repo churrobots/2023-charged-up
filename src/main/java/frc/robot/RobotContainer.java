@@ -132,9 +132,6 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
-    Command runArmUp = new RunCommand(armTheSecond::moveUp, armTheSecond);
-    Command runArmDown = new RunCommand(armTheSecond::moveDown, armTheSecond);
-
     Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
     Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond);
 
@@ -172,13 +169,14 @@ public class RobotContainer {
     // Operator
     var leftBumperOpButton = new JoystickButton(m_operatorController, Button.kLeftBumper.value);
     var rightShoulderOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
+    var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
 
     leftBumperOpButton.whileTrue(receiveFromSingleSubstation);
-    rightShoulderOpButton.whileTrue(yeet);
     xOpButton.whileTrue(yoink);
+    aOpButton.whileTrue(yeet);
     backOpButton.whileTrue(moveArmIntoCalibration);
     startOpButton.whileTrue(resetArmCalibration);
 
