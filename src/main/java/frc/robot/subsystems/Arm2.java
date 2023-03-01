@@ -24,14 +24,14 @@ public class Arm2 extends SubsystemBase {
 
   public Arm2() {
     armMotor.configFactoryDefault();
-    var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 35, 40, 2.5);
+    var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 40, 45, 2.5);
     armMotor.configStatorCurrentLimit(safeCurrentLimitsForFalcon);
     armMotor.setNeutralMode(NeutralMode.Brake);
     FalconHelper.configureMotionMagic(
         armMotor,
         18000,
         8000,
-        3,
+        1,
         0.2,
         0.2,
         0,
@@ -63,7 +63,7 @@ public class Arm2 extends SubsystemBase {
   }
 
   public void receiveFromSingleSubstation() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 13740);
   }
 
   public void stop() {
