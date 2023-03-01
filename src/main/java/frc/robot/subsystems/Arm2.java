@@ -54,14 +54,6 @@ public class Arm2 extends SubsystemBase {
     armMotor.set(TalonFXControlMode.Velocity, Constants.calibrationVelocitySensorUnitsPerSecond);
   }
 
-  public void moveUp() {
-    runMotorWithSafety(TalonFXControlMode.PercentOutput, -.15);
-  }
-
-  public void moveDown() {
-    runMotorWithSafety(TalonFXControlMode.PercentOutput, .15);
-  }
-
   public void receiveFromSingleSubstation() {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, 13740);
   }

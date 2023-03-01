@@ -18,14 +18,9 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
-import frc.robot.commands.MoveArm;
-import frc.robot.commands.RollBoth;
-import frc.robot.commands.RollSingle;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake2;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
-import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm2;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -42,15 +37,11 @@ import java.nio.file.Path;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
-  // Arm ChaosArm = new Arm();
-
-  Arm2 armTheSecond = new Arm2();
-  Intake2 intakeTheSecond = new Intake2();
-
-  // private final Intake topChiliDogGrab = new Intake(10, true);
-  // private final Intake bottomChiliDogGrab = new Intake(11, false);
+  private final Arm2 armTheSecond = new Arm2();
+  private final Intake2 intakeTheSecond = new Intake2();
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -59,7 +50,6 @@ public class RobotContainer {
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorrControllerPort = 1;
-
     public static final double kDriveDeadband = 0.1;
   }
 
@@ -83,7 +73,6 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the button bindings
-    // TODO: go back to using our Gamepad helper for easier button code
     configureButtonBindings();
 
     // Configure drivetrain
@@ -137,13 +126,7 @@ public class RobotContainer {
 
     Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
     Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
-    Command receiveFromSingleSubstation = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
-
-    // Command rollBoth = new RollBoth(ChaosArm, bottomChiliDogGrab,
-    // topChiliDogGrab);
-    // Command rollTop = new RollSingle(ChaosArm, topChiliDogGrab);
-    // Command rollBottom = new RollSingle(ChaosArm, bottomChiliDogGrab);
-    // Command moveArm = new MoveArm(ChaosArm, m_operatorController);
+    Command pickHigh = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
@@ -168,22 +151,21 @@ public class RobotContainer {
 
     // Operator
     var leftBumperOpButton = new JoystickButton(m_operatorController, Button.kLeftBumper.value);
-    var rightShoulderOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
+    var rightBumperOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
     var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
+    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
+    var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
 
-    leftBumperOpButton.whileTrue(receiveFromSingleSubstation);
-    xOpButton.whileTrue(yoink);
-    aOpButton.whileTrue(yeet);
+    leftBumperOpButton.whileTrue(yoink);
+    rightBumperOpButton.whileTrue(yeet);
     backOpButton.whileTrue(moveArmIntoCalibration);
     startOpButton.whileTrue(resetArmCalibration);
+    yOpButton.whileTrue(pickHigh);
 
-    // aOpButton.whileTrue(rollTop);
-    // bOpButton.whileTrue(rollBottom);
-    // yOpButton.whileTrue(rollBoth);
-    // xOpButton.whileTrue(moveArm);
+    // TODO: give a "slow precise" mode for driver
   }
 
   public Trajectory getTrajectory(String trajectoryJSON) {
@@ -205,6 +187,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Create config for trajectory
+
+    // FIXME: why don't we use this config? we should refer back to the Rev
+    // MaxSwerve template code for trajectory
     TrajectoryConfig config = new TrajectoryConfig(
         AutoConstants.kMaxSpeedMetersPerSecond,
         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
