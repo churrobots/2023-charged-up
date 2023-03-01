@@ -19,9 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Intake2;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
-import frc.robot.subsystems.Arm2;
+import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -40,8 +40,8 @@ public class RobotContainer {
 
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
-  private final Arm2 armTheSecond = new Arm2();
-  private final Intake2 intakeTheSecond = new Intake2();
+  private final Arm armTheSecond = new Arm();
+  private final Intake intakeTheSecond = new Intake();
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);

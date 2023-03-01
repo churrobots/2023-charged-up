@@ -12,7 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.FalconHelper;
 
-public class Arm2 extends SubsystemBase {
+public class Arm extends SubsystemBase {
 
   private static final class Constants {
     private static final int armCanID = 12;
@@ -22,7 +22,7 @@ public class Arm2 extends SubsystemBase {
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
 
-  public Arm2() {
+  public Arm() {
     armMotor.configFactoryDefault();
     var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 40, 45, 2.5);
     armMotor.configStatorCurrentLimit(safeCurrentLimitsForFalcon);

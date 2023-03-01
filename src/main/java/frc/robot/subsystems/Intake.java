@@ -8,7 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Intake2 extends SubsystemBase {
+public class Intake extends SubsystemBase {
   private static final class Constants {
     private static final int topRollerMotorID = 10;
     private static final int bottomRollerMotorID = 11;
@@ -17,7 +17,7 @@ public class Intake2 extends SubsystemBase {
   private final WPI_VictorSPX topCubeYoinker = new WPI_VictorSPX(Constants.topRollerMotorID);
   private final WPI_VictorSPX bottomCubeYoinker = new WPI_VictorSPX(Constants.bottomRollerMotorID);
 
-  public Intake2() {
+  public Intake() {
   }
 
   public void yoinkTheCubes() {
