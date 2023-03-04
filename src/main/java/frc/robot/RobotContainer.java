@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
@@ -29,6 +30,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -46,6 +53,8 @@ public class RobotContainer {
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
+  // Create the autonomous chooser.
+  SendableChooser<Command> autonomousChooser = new SendableChooser<Command>();
 
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
@@ -68,6 +77,10 @@ public class RobotContainer {
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
 
+  private double signedSquare(double val) {
+    return val < 0 ? val * val * -1 : val * val;
+  }
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -81,11 +94,12 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(m_driverController.getLeftY(),
+                -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY()),
                     OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftX(),
+                -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX()),
                     OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getRightX(),
+                    OIConstants.kDriveDeadband),
                 true, true),
             m_robotDrive));
 
@@ -127,6 +141,8 @@ public class RobotContainer {
     Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
     Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
     Command pickHigh = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
+    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
+    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
@@ -163,6 +179,8 @@ public class RobotContainer {
     rightBumperOpButton.whileTrue(yeet);
     backOpButton.whileTrue(moveArmIntoCalibration);
     startOpButton.whileTrue(resetArmCalibration);
+    xOpButton.whileTrue(moveToMid);
+    bOpButton.whileTrue(moveToLow);
     yOpButton.whileTrue(pickHigh);
 
     // TODO: give a "slow precise" mode for driver
@@ -186,39 +204,26 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // Create config for trajectory
 
-    // FIXME: why don't we use this config? we should refer back to the Rev
-    // MaxSwerve template code for trajectory
-    TrajectoryConfig config = new TrajectoryConfig(
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        // Add kinematics to ensure max speed is actually obeyed
-        .setKinematics(m_robotDrive.getKinematics());
+    // return autonomousChooser.getSelected();
 
-    var thetaController = new ProfiledPIDController(
-        AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    PathPlannerTrajectory examplePath = PathPlanner.loadPath("ScoreFromLeft",
+        new PathConstraints(AutoConstants.kMaxSpeedMetersPerSecond,
+            AutoConstants.kMaxAccelerationMetersPerSecondSquared));
 
-    Trajectory moveToBall = getTrajectory("pathplanner/generatedJSON/AfterTheDust.wpilib.json");
+    HashMap<String, Command> eventMap = new HashMap<>();
+    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
+    eventMap.put("Score Mid", moveToMid);
 
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        moveToBall,
-        m_robotDrive::getPose, // Functional interface to feed supplier
-        m_robotDrive.getKinematics(),
+    FollowPathWithEvents command = new FollowPathWithEvents(
+        getPathFollowingCommand(examplePath),
+        examplePath.getMarkers(),
+        eventMap);
+    return command;
+  }
 
-        // Position controllers
-        new PIDController(AutoConstants.kPXController, 0, 0),
-        new PIDController(AutoConstants.kPYController, 0, 0),
-        thetaController,
-        m_robotDrive::setModuleStates,
-        m_robotDrive);
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(moveToBall.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));
+  public Command getPathFollowingCommand(PathPlannerTrajectory traj) {
+    return m_robotDrive.followTrajectoryCommand(traj, true);
   }
 
 }
