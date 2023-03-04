@@ -67,6 +67,10 @@ public class Arm extends SubsystemBase {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
   }
 
+  public void resetArm() {
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 11000);
+  }
+
   public void stop() {
     armMotor.set(TalonFXControlMode.PercentOutput, 0);
   }

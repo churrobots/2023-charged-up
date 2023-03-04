@@ -2,13 +2,41 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.0,
-        "y": 3.0
+        "x": 1.7126437782470834,
+        "y": 2.7492908807974734
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0,
-        "y": 3.0
+        "x": 2.7126437782470827,
+        "y": 2.7492908807974734
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "MoveArm",
+          "Score"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "after",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.8634063003260555,
+        "y": 4.54559624862251
+      },
+      "prevControl": {
+        "x": 1.8634063003260555,
+        "y": 4.54559624862251
+      },
+      "nextControl": {
+        "x": 3.8634063003260555,
+        "y": 4.54559624862251
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,37 +52,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.1025136169738485,
-        "y": 2.5042020361547235
+        "x": 4.502363595167728,
+        "y": 5.933668167656431
       },
       "prevControl": {
-        "x": 2.1025136169738485,
-        "y": 1.5042020361547235
-      },
-      "nextControl": {
-        "x": 2.1025136169738485,
-        "y": 1.5042020361547235
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.0,
-        "y": 3.0
-      },
-      "prevControl": {
-        "x": 4.0,
-        "y": 3.0
+        "x": 3.8783949899171497,
+        "y": 5.932647488897951
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -70,5 +73,12 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.9794500177556815,
+      "names": [
+        "ResetArm"
+      ]
+    }
+  ]
 }

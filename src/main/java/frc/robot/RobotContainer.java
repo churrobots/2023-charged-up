@@ -5,14 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -25,11 +18,8 @@ import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathConstraints;
@@ -54,7 +44,8 @@ public class RobotContainer {
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
   // Create the autonomous chooser.
-  SendableChooser<Command> autonomousChooser = new SendableChooser<Command>();
+  SendableChooser<Command> scoringChoice = new SendableChooser<Command>();
+  SendableChooser<Command> pathChoice = new SendableChooser<Command>();
 
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
@@ -67,10 +58,6 @@ public class RobotContainer {
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
 
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
@@ -112,6 +99,33 @@ public class RobotContainer {
     SmartDashboard.putData(m_robotDrive);
     SmartDashboard.putData(armTheSecond);
     SmartDashboard.putData(intakeTheSecond);
+    // creates Trajectory
+    FollowPathWithEvents centerBalance = getPathCommand("Center&Balance", getScoreCommand());
+    FollowPathWithEvents centerLeave = getPathCommand("Center&Leave", getScoreCommand());
+    FollowPathWithEvents centerPrep = getPathCommand("Center&Prep", getScoreCommand());
+    FollowPathWithEvents nearBalance = getPathCommand("Near&Balance", getScoreCommand());
+    FollowPathWithEvents nearLeave = getPathCommand("Near&Leave", getScoreCommand());
+    FollowPathWithEvents nearPrep = getPathCommand("Near&Prep", getScoreCommand());
+    FollowPathWithEvents farBalance = getPathCommand("Far&Balance", getScoreCommand());
+    FollowPathWithEvents farLeave = getPathCommand("Far&Leave", getScoreCommand());
+    FollowPathWithEvents farPrep = getPathCommand("Far&Prep", getScoreCommand());
+
+    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
+    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
+
+    // Sets up Auto
+    pathChoice.addOption("Center&Balance", centerBalance);
+    pathChoice.addOption("Center&Leave", centerLeave);
+    pathChoice.addOption("Center&Prep", centerPrep);
+    pathChoice.addOption("Near&Balance", nearBalance);
+    pathChoice.addOption("Near&Leave", nearLeave);
+    pathChoice.addOption("Near&Prep", nearPrep);
+    pathChoice.addOption("Far&Balance", farBalance);
+    pathChoice.addOption("Far&Leave", farLeave);
+    pathChoice.addOption("Far&Prep", farPrep);
+
+    scoringChoice.addOption("ScoreLow", moveToLow);
+    scoringChoice.addOption("ScoreMid", moveToMid);
 
   }
 
@@ -186,34 +200,34 @@ public class RobotContainer {
     // TODO: give a "slow precise" mode for driver
   }
 
-  public Trajectory getTrajectory(String trajectoryJSON) {
-
-    Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    Trajectory trajectory = new Trajectory();
-    try {
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException err) {
-      DriverStation.reportError("broken!!!", err.getStackTrace());
-    }
-    return trajectory;
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return pathChoice.getSelected();
+  }
 
-    // return autonomousChooser.getSelected();
+  public Command getScoreCommand() {
+    return scoringChoice.getSelected();
+  }
 
-    PathPlannerTrajectory examplePath = PathPlanner.loadPath("ScoreFromLeft",
+  public FollowPathWithEvents getPathCommand(String name, Command moveArm) {
+    PathPlannerTrajectory examplePath = PathPlanner.loadPath(name,
         new PathConstraints(AutoConstants.kMaxSpeedMetersPerSecond,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared));
 
     HashMap<String, Command> eventMap = new HashMap<>();
-    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
-    eventMap.put("Score Mid", moveToMid);
+
+    Command score = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
+    Command resetArm = new RunCommand(armTheSecond::resetArm, armTheSecond);
+    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro);
+
+    eventMap.put("MoveArm", moveArm);
+    eventMap.put("Score", score);
+    eventMap.put("ResetArm", resetArm);
+    eventMap.put("Balance", setBalance);
 
     FollowPathWithEvents command = new FollowPathWithEvents(
         getPathFollowingCommand(examplePath),

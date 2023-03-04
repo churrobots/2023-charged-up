@@ -12,8 +12,8 @@ public class JengaBalance extends PIDCommand {
   private final static double kDrivingP = 0.04;
   private final static double kDrivingI = 0;
   private final static double kDrivingD = 0;
-  public static final double kTurnToleranceDeg = 5;
-  public static final double kTurnRateToleranceDegPerS = 10;
+  public final static double kTurnToleranceDeg = 5;
+  public final static double kTurnRateToleranceDegPerS = 10;
 
   public JengaBalance(DriveSubsystem drive, WPI_Pigeon2 pigeon) {
     super(

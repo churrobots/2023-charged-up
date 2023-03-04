@@ -1,0 +1,47 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Arm": "Subsystem",
+      "/SmartDashboard/DriveSubsystem": "Subsystem",
+      "/SmartDashboard/Intake": "Subsystem"
+    },
+    "windows": {
+      "/SmartDashboard/DriveSubsystem": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Intake": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Retained Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    },
+    "transitory": {
+      "Shuffleboard": {
+        ".metadata": {
+          "open": true
+        },
+        ".recording": {
+          "open": true
+        },
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      }
+    }
+  }
+}
