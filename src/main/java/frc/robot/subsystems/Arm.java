@@ -60,15 +60,16 @@ public class Arm extends SubsystemBase {
 
   public void moveToLow() {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, 16000);
-
   }
 
   public void moveToMid() {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
+
   }
 
   public void resetArm() {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, 11000);
+
   }
 
   public void stop() {

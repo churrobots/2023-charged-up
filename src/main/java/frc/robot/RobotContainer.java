@@ -14,9 +14,12 @@ import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LightShow;
 import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -36,6 +39,7 @@ import com.pathplanner.lib.commands.FollowPathWithEvents;
 public class RobotContainer {
 
   // The robot's subsystems
+  private final LightShow m_lightShow = new LightShow();
   private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
   private final Arm armTheSecond = new Arm();
   private final Intake intakeTheSecond = new Intake();
@@ -109,6 +113,7 @@ public class RobotContainer {
     FollowPathWithEvents farBalance = getPathCommand("Far&Balance", getScoreCommand());
     FollowPathWithEvents farLeave = getPathCommand("Far&Leave", getScoreCommand());
     FollowPathWithEvents farPrep = getPathCommand("Far&Prep", getScoreCommand());
+    FollowPathWithEvents garage = getPathCommand("TheMattGarageSpecial", getScoreCommand());
 
     Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
     Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
@@ -123,9 +128,16 @@ public class RobotContainer {
     pathChoice.addOption("Far&Balance", farBalance);
     pathChoice.addOption("Far&Leave", farLeave);
     pathChoice.addOption("Far&Prep", farPrep);
+    pathChoice.addOption("TheGarageSpecial", garage);
 
     scoringChoice.addOption("ScoreLow", moveToLow);
     scoringChoice.addOption("ScoreMid", moveToMid);
+
+    SmartDashboard.putData(scoringChoice);
+    SmartDashboard.putData(pathChoice);
+
+    var noLight = new InstantCommand(m_lightShow::runDefaultLights, m_lightShow);
+    m_lightShow.setDefaultCommand(noLight);
 
   }
 
@@ -149,14 +161,19 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
-    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
-    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond);
+    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(5, 0, 0), m_lightShow));
+    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 5, 0), m_lightShow));
 
     Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
-    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
+    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(10, 10, 10), m_lightShow));
     Command pickHigh = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
-    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
-    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
+    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 0, 5), m_lightShow));
+    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 5, 5), m_lightShow));
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
@@ -220,9 +237,12 @@ public class RobotContainer {
 
     HashMap<String, Command> eventMap = new HashMap<>();
 
-    Command score = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
-    Command resetArm = new RunCommand(armTheSecond::resetArm, armTheSecond);
-    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro);
+    Command score = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 0, 5), m_lightShow));
+    Command resetArm = new RunCommand(armTheSecond::resetArm, armTheSecond)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(10, 0, 5), m_lightShow));
+    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro)
+        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 10, 5), m_lightShow));
 
     eventMap.put("MoveArm", moveArm);
     eventMap.put("Score", score);

@@ -23,11 +23,13 @@ public class Intake extends SubsystemBase {
   public void yoinkTheCubes() {
     topCubeYoinker.set(.75);
     bottomCubeYoinker.set(.75);
+    
   }
 
   public void yeetTheCubes() {
     topCubeYoinker.set(-.75);
     bottomCubeYoinker.set(-.75);
+
   }
 
   public void stopThePlan() {

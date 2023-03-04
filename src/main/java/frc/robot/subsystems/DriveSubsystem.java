@@ -435,7 +435,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
   }
 
-
   /**
    * Sets the swerve ModuleStates.
    *
@@ -511,15 +510,18 @@ public class DriveSubsystem extends SubsystemBase {
             traj,
             this::getPose, // Pose supplier
             this.m_kinematics, // SwerveDriveKinematics
-            new PIDController(SpeedyHedgehogConstants.kPXController, 0, 0), // X controller. Tune these values for your
-                                                                            // robot. Leaving them 0 will only use
-            // feedforwards.
-            new PIDController(SpeedyHedgehogConstants.kPYController, 0, 0), // Y controller (usually the same values as
-                                                                            // X controller)
-            new PIDController(SpeedyHedgehogConstants.kPThetaController, 0, 0), // Rotation controller. Tune these
-                                                                                // values for your
-            // robot. Leaving them 0 will
-            // only use feedforwards.
+            new PIDController(
+                SpeedyHedgehogConstants.kPXController,
+                0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use
+                       // feedforwards.
+            new PIDController(
+                SpeedyHedgehogConstants.kPYController,
+                0, 0), // Y controller (usually the same values as
+                       // X controller)
+            new PIDController(
+                SpeedyHedgehogConstants.kPThetaController,
+                0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will
+                       // only use feedforwards.
             this::setModuleStates, // Module states consumer
             true, // Should the path be automatically mirrored depending on alliance color.
                   // Optional, defaults to true
