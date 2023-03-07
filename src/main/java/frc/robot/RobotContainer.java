@@ -104,7 +104,8 @@ public class RobotContainer {
     SmartDashboard.putData(armTheSecond);
     SmartDashboard.putData(intakeTheSecond);
     // creates Trajectory
-    FollowPathWithEvents centerBalance = getPathCommand("Center&Balance", getScoreCommand());
+    FollowPathWithEvents centerBalance = getPathCommand("Center&Balance",
+        getScoreCommand());
     FollowPathWithEvents centerLeave = getPathCommand("Center&Leave", getScoreCommand());
     FollowPathWithEvents centerPrep = getPathCommand("Center&Prep", getScoreCommand());
     FollowPathWithEvents nearBalance = getPathCommand("Near&Balance", getScoreCommand());

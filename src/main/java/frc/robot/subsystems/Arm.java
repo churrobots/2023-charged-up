@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -11,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.FalconHelper;
+import frc.robot.helpers.Tunables;
 
 public class Arm extends SubsystemBase {
 
@@ -27,20 +29,23 @@ public class Arm extends SubsystemBase {
     var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 40, 45, 2.5);
     armMotor.configStatorCurrentLimit(safeCurrentLimitsForFalcon);
     armMotor.setNeutralMode(NeutralMode.Brake);
-    FalconHelper.configureMotionMagic(
-        armMotor,
-        18000,
-        8000,
-        1,
-        0.2,
-        0.2,
-        0,
-        0);
   }
 
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
-      armMotor.set(mode, value);
+      if (mode == TalonFXControlMode.MotionMagic) {
+        int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
+        double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
+        double currentPos = armMotor.getSelectedSensorPosition();
+        double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
+        double radians = java.lang.Math.toRadians(degrees);
+        double cosineScalar = java.lang.Math.cos(radians);
+        double maxGravityFF = 0.07;
+        armMotor.set(mode, value, DemandType.ArbitraryFeedForward,
+            maxGravityFF * cosineScalar);
+      } else {
+        armMotor.set(mode, value);
+      }
     }
   }
 
@@ -79,6 +84,15 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    FalconHelper.configureMotionMagic(
+        armMotor,
+        Tunables.fastAndFaster.get(),
+        Tunables.monsterInject.get(),
+        1,
+        Tunables.kP.get(),
+        Tunables.kF.get(),
+        Tunables.kI.get(),
+        Tunables.kD.get());
   }
 
 }
