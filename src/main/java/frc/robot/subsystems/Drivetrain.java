@@ -22,7 +22,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.helpers.RevMAXSwerveModule;
-import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -30,8 +29,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
-
-  private final SubsystemInspector inspector = new SubsystemInspector(getSubsystem());
 
   private final RevMAXSwerveModule m_frontLeft;
   private final RevMAXSwerveModule m_frontRight;
@@ -173,11 +170,6 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    inspector.set("gyro.yaw", m_gyro.getYaw());
-    inspector.set("gyro.pitch", m_gyro.getPitch());
-    inspector.set("gyro.roll", m_gyro.getRoll());
-    inspector.set("gyro.angle", m_gyro.getAngle());
 
     // Update the odometry in the periodic block
     m_odometry.update(
