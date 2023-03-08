@@ -10,5 +10,5 @@ public final class Tunables {
   public static final TunableDouble kD = new TunableDouble("kD", 0);
   public static final TunableInteger fastAndFaster = new TunableInteger("Speed", 30000);
   public static final TunableInteger monsterInject = new TunableInteger("Acceleration", 25000);
-
+  public static final TunableInteger kSmoothing = new TunableInteger("kSmoothing", 1);
 }

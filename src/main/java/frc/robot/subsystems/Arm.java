@@ -29,6 +29,7 @@ public class Arm extends SubsystemBase {
     var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 32, 35, 2.5);
     armMotor.configStatorCurrentLimit(safeCurrentLimitsForFalcon);
     armMotor.setNeutralMode(NeutralMode.Brake);
+    updateArmTuning();
   }
 
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
@@ -72,13 +73,9 @@ public class Arm extends SubsystemBase {
 
   }
 
-  public void moveToZero() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 0);
-  }
-
   public void stop() {
     if (armMotor.getSelectedSensorPosition() > 6000) {
-      moveToZero();
+      runMotorWithSafety(TalonFXControlMode.MotionMagic, 3000);
     } else {
       armMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
@@ -95,16 +92,20 @@ public class Arm extends SubsystemBase {
         Tunables.kD.didChange();
 
     if (didChange) {
-      FalconHelper.configureMotionMagic(
-          armMotor,
-          Tunables.fastAndFaster.get(),
-          Tunables.monsterInject.get(),
-          1,
-          Tunables.kP.get(),
-          Tunables.kF.get(),
-          Tunables.kI.get(),
-          Tunables.kD.get());
+      updateArmTuning();
     }
+  }
+
+  private void updateArmTuning() {
+    FalconHelper.configureMotionMagic(
+        armMotor,
+        Tunables.fastAndFaster.get(),
+        Tunables.monsterInject.get(),
+        Tunables.kSmoothing.get(),
+        Tunables.kP.get(),
+        Tunables.kF.get(),
+        Tunables.kI.get(),
+        Tunables.kD.get());
   }
 
 }
