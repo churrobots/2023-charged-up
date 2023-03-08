@@ -15,7 +15,6 @@ import frc.robot.commands.JengaBalance;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
-import frc.robot.subsystems.DriveSubsystem.WhichDrivebase;
 import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -40,7 +39,7 @@ public class RobotContainer {
 
   // The robot's subsystems
   private final LightShow m_lightShow = new LightShow();
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem(WhichDrivebase.SpeedyHedgehog);
+  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Arm armTheSecond = new Arm();
   private final Intake intakeTheSecond = new Intake();
 
