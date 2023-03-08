@@ -77,7 +77,11 @@ public class Arm extends SubsystemBase {
   }
 
   public void stop() {
-    armMotor.set(TalonFXControlMode.PercentOutput, 0);
+    if (armMotor.getSelectedSensorPosition() > 6000) {
+      resetArm();
+    } else {
+      armMotor.set(TalonFXControlMode.PercentOutput, 0);
+    }
   }
 
   @Override
