@@ -529,4 +529,8 @@ public class DriveSubsystem extends SubsystemBase {
         ));
   }
 
+  public double getPitch() {
+    return m_gyro.getPitch();
+  }
+
 }

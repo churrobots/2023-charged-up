@@ -15,11 +15,11 @@ public class JengaBalance extends PIDCommand {
   public final static double kTurnToleranceDeg = 5;
   public final static double kTurnRateToleranceDegPerS = 10;
 
-  public JengaBalance(DriveSubsystem drive, WPI_Pigeon2 pigeon) {
+  public JengaBalance(DriveSubsystem drive) {
     super(
         new PIDController(kDrivingP, kDrivingI, kDrivingD),
         // Read gyro pitch
-        pigeon::getPitch,
+        drive::getPitch,
         // Setpoint when gyro is level
         0,
         // Pipe output to turn robot
