@@ -1,6 +1,5 @@
 package frc.robot.helpers;
 
-import frc.robot.helpers.Tuner.TunableBoolean;
 import frc.robot.helpers.Tuner.TunableDouble;
 import frc.robot.helpers.Tuner.TunableInteger;
 
