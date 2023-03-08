@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class DriveSubsystem extends SubsystemBase {
+public class Drivetrain extends SubsystemBase {
 
   private final SubsystemInspector inspector = new SubsystemInspector(getSubsystem());
 
@@ -64,9 +64,18 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kRearLeftChassisAngularOffset = Math.PI;
     public static final double kRearRightChassisAngularOffset = Math.PI / 2;
 
-    // Trajectory speed constants.
-    public static final double kTrajectoryMaxSpeedMetersPerSecond = 3;
-    public static final double kTrajectoryMaxAccelerationMetersPerSecondSquared = 3;
+    // Autonomous: PID contants
+    // TODO: we cribbed these from the Eastbots who have a maxswerve but we don't
+    // know if it's comparable characteristics so we might want to reconsider, the
+    // original values were all 1.0
+    public static final double kPXController = 2;
+    public static final double kPYController = 4;
+    public static final double kPThetaController = 0.04;
+
+    // Autonomous: Trajectory speed constants
+    // FIXME: were both 3.0 before, but we slowed it down for balancing and safety
+    public static final double kTrajectoryMaxSpeedMetersPerSecond = 1.3;
+    public static final double kTrajectoryMaxAccelerationMetersPerSecondSquared = 0.5;
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
@@ -93,11 +102,6 @@ public class DriveSubsystem extends SubsystemBase {
     // Gyro config
     public static final int kGyroCanId = 9;
     public static final boolean kGyroReversed = false;
-
-    // PID contants
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
   }
 
   // Slew rate filter variables for controlling lateral acceleration
@@ -109,7 +113,7 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
 
-  public DriveSubsystem() {
+  public Drivetrain() {
 
     /////////////////////////////////////////////////////////////////
     // SpeedyHedgehog is a Rev MAXSwerve

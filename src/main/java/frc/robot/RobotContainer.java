@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
 import frc.robot.subsystems.Arm;
@@ -39,7 +39,7 @@ public class RobotContainer {
 
   // The robot's subsystems
   private final LightShow m_lightShow = new LightShow();
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final Drivetrain m_robotDrive = new Drivetrain();
   private final Arm armTheSecond = new Arm();
   private final Intake intakeTheSecond = new Intake();
 

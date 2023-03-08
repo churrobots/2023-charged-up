@@ -1,11 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 
 public class AngleSnap extends PIDCommand {
-  DriveSubsystem car;
+  Drivetrain car;
   Double angle;
   private final static double kDrivingP = 0.012;
   private final static double kDrivingI = 0;
@@ -13,7 +13,7 @@ public class AngleSnap extends PIDCommand {
   public static final double kTurnToleranceDeg = 1;
   public static final double kTurnRateToleranceDegPerS = 5;
 
-  public AngleSnap(double targetAngleDegrees, DriveSubsystem drive) {
+  public AngleSnap(double targetAngleDegrees, Drivetrain drive) {
     super(
         new PIDController(kDrivingP, kDrivingI, kDrivingD),
         // Close loop on heading

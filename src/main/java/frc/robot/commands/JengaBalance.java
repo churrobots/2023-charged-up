@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 public class JengaBalance extends PIDCommand {
-  DriveSubsystem car;
+  Drivetrain car;
   WPI_Pigeon2 pigeon;
   Double angle;
   private final static double kDrivingP = 0.04;
@@ -15,7 +15,7 @@ public class JengaBalance extends PIDCommand {
   public final static double kTurnToleranceDeg = 5;
   public final static double kTurnRateToleranceDegPerS = 10;
 
-  public JengaBalance(DriveSubsystem drive) {
+  public JengaBalance(Drivetrain drive) {
     super(
         new PIDController(kDrivingP, kDrivingI, kDrivingD),
         // Read gyro pitch
