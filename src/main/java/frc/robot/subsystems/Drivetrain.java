@@ -295,6 +295,10 @@ public class Drivetrain extends SubsystemBase {
     m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
+  public void stop() {
+    drive(0, 0, 0, true, true);
+  }
+
   /**
    * Sets the wheels into an X formation to prevent movement.
    */
