@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,14 +16,12 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
 import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
@@ -88,20 +85,16 @@ public class RobotContainer {
     var stopRollers = new RunCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
     intakeTheSecond.setDefaultCommand(stopRollers);
 
-    SmartDashboard.putData(m_robotDrive);
-    SmartDashboard.putData(armTheSecond);
-    SmartDashboard.putData(intakeTheSecond);
     // creates Trajectory
-    FollowPathWithEvents centerBalance = getPathCommand("Center&Balance",
-        getScoreCommand());
-    FollowPathWithEvents centerLeave = getPathCommand("Center&Leave", getScoreCommand());
-    FollowPathWithEvents centerPrep = getPathCommand("Center&Prep", getScoreCommand());
-    FollowPathWithEvents nearBalance = getPathCommand("Near&Balance", getScoreCommand());
-    FollowPathWithEvents nearLeave = getPathCommand("Near&Leave", getScoreCommand());
-    FollowPathWithEvents nearPrep = getPathCommand("Near&Prep", getScoreCommand());
-    FollowPathWithEvents farBalance = getPathCommand("Far&Balance", getScoreCommand());
-    FollowPathWithEvents farLeave = getPathCommand("Far&Leave", getScoreCommand());
-    FollowPathWithEvents farPrep = getPathCommand("Far&Prep", getScoreCommand());
+    var centerBalance = getPathCommand("Center&Balance");
+    var centerLeave = getPathCommand("Center&Leave");
+    var centerPrep = getPathCommand("Center&Prep");
+    var nearBalance = getPathCommand("Near&Balance");
+    var nearLeave = getPathCommand("Near&Leave");
+    var nearPrep = getPathCommand("Near&Prep");
+    var farBalance = getPathCommand("Far&Balance");
+    var farLeave = getPathCommand("Far&Leave");
+    var farPrep = getPathCommand("Far&Prep");
 
     Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
     Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
@@ -128,15 +121,6 @@ public class RobotContainer {
 
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link edu.wpi.first.wpilibj.GenericHID} or one of its
-   * subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then calling
-   * passing it to a
-   * {@link JoystickButton}.
-   */
   private void configureButtonBindings() {
 
     Command turnButtonY = new AngleSnap(0, m_robotDrive);
@@ -145,7 +129,7 @@ public class RobotContainer {
     Command turnButtonX = new AngleSnap(90, m_robotDrive);
     Command setBalance = new JengaBalance(m_robotDrive);
 
-    Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
+    Command anchorInPlace = new RunCommand(() -> m_robotDrive.setXFormation(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
     Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
@@ -199,45 +183,48 @@ public class RobotContainer {
     // TODO: give a "slow precise" mode for driver
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
-    return pathChoice.getSelected();
+    var resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond).withTimeout(0.5);
+    var yeetForSomeTime = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond).withTimeout(0.75);
+    var stopRollers = new InstantCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
+    var doThePath = pathChoice.getSelected();
+    var gotoScoringPosition = scoringChoice.getSelected().withTimeout(2);
+    var resetArm = new RunCommand(armTheSecond::stop, armTheSecond).withTimeout(0.75);
+    var stopTheArm = new InstantCommand(armTheSecond::stop, armTheSecond);
+    var anchorJustInCaseWeAreBalancing = new RunCommand(m_robotDrive::setXFormation, m_robotDrive);
+
+    return resetArmCalibration
+        .andThen(gotoScoringPosition)
+        .andThen(yeetForSomeTime)
+        .andThen(stopRollers)
+        .andThen(resetArm)
+        .andThen(stopTheArm)
+        .andThen(doThePath)
+        .andThen(anchorJustInCaseWeAreBalancing);
   }
 
   public Command getScoreCommand() {
     return scoringChoice.getSelected();
   }
 
-  public FollowPathWithEvents getPathCommand(String name, Command moveArm) {
-    PathPlannerTrajectory examplePath = PathPlanner.loadPath(name, m_robotDrive.getPathPlannerConstraints());
-
-    HashMap<String, Command> eventMap = new HashMap<>();
-
-    Command score = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 0, 5), m_lightShow));
-    Command resetArm = new RunCommand(armTheSecond::resetArm, armTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(10, 0, 5), m_lightShow));
-    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 10, 5), m_lightShow));
-
-    eventMap.put("MoveArm", moveArm);
-    eventMap.put("Score", score);
-    eventMap.put("ResetArm", resetArm);
-    eventMap.put("Balance", setBalance);
-
-    FollowPathWithEvents command = new FollowPathWithEvents(
-        getPathFollowingCommand(examplePath),
-        examplePath.getMarkers(),
-        eventMap);
-    return command;
-  }
-
-  public Command getPathFollowingCommand(PathPlannerTrajectory traj) {
-    return m_robotDrive.followTrajectoryCommand(traj, true);
+  /**
+   * Get the command corresponding to following the given trajectory.
+   * If the path does not exist by that name, will return a no-op command
+   * so that at least the robot does not crash on bootup.
+   * 
+   * @param pathplannerName
+   * @return Command
+   */
+  public Command getPathCommand(String pathplannerName) {
+    try {
+      PathPlannerTrajectory trajectory = PathPlanner.loadPath(pathplannerName,
+          m_robotDrive.getPathPlannerConstraints());
+      return m_robotDrive.followTrajectoryCommand(trajectory, true);
+    } catch (Error err) {
+      // TODO: set some SmartDashboard state that the LightShow can detect an error
+      var noopCommand = new InstantCommand();
+      return noopCommand;
+    }
   }
 
 }
