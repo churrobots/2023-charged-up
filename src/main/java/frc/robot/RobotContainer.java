@@ -205,8 +205,8 @@ public class RobotContainer {
     rightBumperOpButton.whileTrue(yeet);
     backOpButton.whileTrue(moveArmIntoCalibration);
     startOpButton.whileTrue(resetArmCalibration);
-    xOpButton.whileTrue(moveToMid);
-    bOpButton.whileTrue(moveToLow);
+    xOpButton.whileTrue(moveToLow);
+    aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(pickHigh);
 
     // TODO: give a "slow precise" mode for driver
