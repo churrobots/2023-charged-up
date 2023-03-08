@@ -89,7 +89,7 @@ public class RevMAXSwerveModule {
   private final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
   private final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
 
-  private final int kDrivingMotorCurrentLimit = 50; // amps
+  private final int kDrivingMotorCurrentLimit = 40; // amps
   private final int kTurningMotorCurrentLimit = 20; // amps
 
   /**
