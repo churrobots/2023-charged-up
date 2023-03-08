@@ -5,11 +5,11 @@ import frc.robot.helpers.Tuner.TunableDouble;
 import frc.robot.helpers.Tuner.TunableInteger;
 
 public final class Tunables {
-  public static final TunableDouble kP = new TunableDouble("kP", 0.03);
-  public static final TunableDouble kF = new TunableDouble("kF", 0.03);
-  public static final TunableDouble kI = new TunableDouble("kI", 0);
+  public static final TunableDouble kP = new TunableDouble("kP", 0.04);
+  public static final TunableDouble kF = new TunableDouble("kF", 0.05);
+  public static final TunableDouble kI = new TunableDouble("kI", 0.000001);
   public static final TunableDouble kD = new TunableDouble("kD", 0);
-  public static final TunableInteger kachow = new TunableInteger("Speed", 18000);
-  public static final TunableInteger kaching = new TunableInteger("Acceleration", 8000);
+  public static final TunableInteger fastAndFaster = new TunableInteger("Speed", 30000);
+  public static final TunableInteger monsterInject = new TunableInteger("Acceleration", 25000);
 
 }
