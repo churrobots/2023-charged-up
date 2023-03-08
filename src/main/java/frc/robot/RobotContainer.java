@@ -19,39 +19,27 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import java.util.HashMap;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 
-/*
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
 
-  // The robot's subsystems
   private final LightShow m_lightShow = new LightShow();
-  private final Drivetrain m_robotDrive = new Drivetrain();
-  private final Arm armTheSecond = new Arm();
-  private final Intake intakeTheSecond = new Intake();
+  private final Drivetrain m_drivetrain = new Drivetrain();
+  private final Arm m_arm = new Arm();
+  private final Intake m_intake = new Intake();
 
-  // The driver's controller
-  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-  XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
-  // Create the autonomous chooser.
-  SendableChooser<Command> scoringChoice = new SendableChooser<Command>();
-  SendableChooser<Command> pathChoice = new SendableChooser<Command>();
+  SendableChooser<Command> m_autoScoringChoice = new SendableChooser<Command>();
+  SendableChooser<Command> m_autoPathChoice = new SendableChooser<Command>();
 
   private static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorrControllerPort = 1;
     public static final double kDriveDeadband = 0.1;
   }
+
+  private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
   private double signedSquare(double val) {
     return val < 0 ? val * val * -1 : val * val;
@@ -61,92 +49,39 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the button bindings
     configureButtonBindings();
-
-    // Configure drivetrain
-    m_robotDrive.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY()),
-                    OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX()),
-                    OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(),
-                    OIConstants.kDriveDeadband),
-                true, true),
-            m_robotDrive));
-
-    var stopArm = new RunCommand(armTheSecond::stop, armTheSecond);
-    armTheSecond.setDefaultCommand(stopArm);
-
-    var stopRollers = new RunCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
-    intakeTheSecond.setDefaultCommand(stopRollers);
-
-    // creates Trajectory
-    var centerBalance = getPathCommand("Center&Balance");
-    var centerLeave = getPathCommand("Center&Leave");
-    var centerPrep = getPathCommand("Center&Prep");
-    var nearBalance = getPathCommand("Near&Balance");
-    var nearLeave = getPathCommand("Near&Leave");
-    var nearPrep = getPathCommand("Near&Prep");
-    var farBalance = getPathCommand("Far&Balance");
-    var farLeave = getPathCommand("Far&Leave");
-    var farPrep = getPathCommand("Far&Prep");
-
-    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
-    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
-
-    // Sets up Auto
-    pathChoice.addOption("Center&Balance", centerBalance);
-    pathChoice.addOption("Center&Leave", centerLeave);
-    pathChoice.addOption("Center&Prep", centerPrep);
-    pathChoice.addOption("Near&Balance", nearBalance);
-    pathChoice.addOption("Near&Leave", nearLeave);
-    pathChoice.addOption("Near&Prep", nearPrep);
-    pathChoice.addOption("Far&Balance", farBalance);
-    pathChoice.addOption("Far&Leave", farLeave);
-    pathChoice.addOption("Far&Prep", farPrep);
-
-    scoringChoice.addOption("ScoreLow", moveToLow);
-    scoringChoice.addOption("ScoreMid", moveToMid);
-
-    SmartDashboard.putData(scoringChoice);
-    SmartDashboard.putData(pathChoice);
-
-    var noLight = new InstantCommand(m_lightShow::runDefaultLights, m_lightShow);
-    m_lightShow.setDefaultCommand(noLight);
-
+    ensureSubsystemsHaveDefaultCommands();
+    createAutonomousSelector();
   }
 
   private void configureButtonBindings() {
 
-    Command turnButtonY = new AngleSnap(0, m_robotDrive);
-    Command turnButtonB = new AngleSnap(-90, m_robotDrive);
-    Command turnButtonA = new AngleSnap(180, m_robotDrive);
-    Command turnButtonX = new AngleSnap(90, m_robotDrive);
-    Command setBalance = new JengaBalance(m_robotDrive);
+    // Teleop commands for the driver and operator.
+    Command turnButtonY = new AngleSnap(0, m_drivetrain);
+    Command turnButtonB = new AngleSnap(-90, m_drivetrain);
+    Command turnButtonA = new AngleSnap(180, m_drivetrain);
+    Command turnButtonX = new AngleSnap(90, m_drivetrain);
+    Command setBalance = new JengaBalance(m_drivetrain);
 
-    Command anchorInPlace = new RunCommand(() -> m_robotDrive.setXFormation(), m_robotDrive);
-    Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
+    Command anchorInPlace = new RunCommand(() -> m_drivetrain.setXFormation(), m_drivetrain);
+    Command resetGyro = new RunCommand(() -> m_drivetrain.resetGyro(), m_drivetrain);
 
-    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
-    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond);
+    Command yeet = new RunCommand(m_intake::yeetTheCubes, m_intake);
+    Command yoink = new RunCommand(m_intake::yoinkTheCubes, m_intake);
 
-    Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
-    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
-    Command pickHigh = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
-    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
-    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
+    Command moveArmIntoCalibration = new RunCommand(m_arm::moveIntoCalibrationPosition, m_arm);
+    Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm);
+    Command moveToReceive = new RunCommand(m_arm::receiveFromSingleSubstation, m_arm);
+    Command moveToLow = new RunCommand(m_arm::moveToLow, m_arm);
+    Command moveToMid = new RunCommand(m_arm::moveToMid, m_arm);
 
+    // TODO: give a "slow precise" mode for driver
+
+    // Driver
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
-
-    // Driver
     var aButton = new JoystickButton(m_driverController, Button.kA.value);
     var bButton = new JoystickButton(m_driverController, Button.kB.value);
     var yButton = new JoystickButton(m_driverController, Button.kY.value);
@@ -167,7 +102,6 @@ public class RobotContainer {
     var rightBumperOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
     var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
-    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
@@ -178,21 +112,85 @@ public class RobotContainer {
     startOpButton.whileTrue(resetArmCalibration);
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
-    yOpButton.whileTrue(pickHigh);
-
-    // TODO: give a "slow precise" mode for driver
+    yOpButton.whileTrue(moveToReceive);
   }
 
-  public Command getAutonomousCommand() {
-    var resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond).withTimeout(0.5);
-    var yeetForSomeTime = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond).withTimeout(0.75);
-    var stopRollers = new InstantCommand(intakeTheSecond::stopThePlan, intakeTheSecond);
-    var doThePath = pathChoice.getSelected();
-    var gotoScoringPosition = scoringChoice.getSelected().withTimeout(2);
-    var resetArm = new RunCommand(armTheSecond::stop, armTheSecond).withTimeout(0.75);
-    var stopTheArm = new InstantCommand(armTheSecond::stop, armTheSecond);
-    var anchorJustInCaseWeAreBalancing = new RunCommand(m_robotDrive::setXFormation, m_robotDrive);
+  private void ensureSubsystemsHaveDefaultCommands() {
 
+    Command driveFieldRelativeWithJoysticks = new RunCommand(
+        () -> m_drivetrain.drive(
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY()),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX()),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getRightX(),
+                OIConstants.kDriveDeadband),
+            true, true),
+        m_drivetrain);
+
+    Command safelyRestTheArm = new RunCommand(m_arm::stop, m_arm);
+    Command stopRollers = new RunCommand(m_intake::stopThePlan, m_intake);
+
+    // Set defaults for all subsystems
+    m_drivetrain.setDefaultCommand(driveFieldRelativeWithJoysticks);
+    m_arm.setDefaultCommand(safelyRestTheArm);
+    m_intake.setDefaultCommand(stopRollers);
+  }
+
+  private void createAutonomousSelector() {
+
+    // Add selector for choosing a trajectory to run.
+    Command centerBalance = safelyReadPathCommand("Center&Balance");
+    Command centerLeave = safelyReadPathCommand("Center&Leave");
+    Command centerPrep = safelyReadPathCommand("Center&Prep");
+    Command nearBalance = safelyReadPathCommand("Near&Balance");
+    Command nearLeave = safelyReadPathCommand("Near&Leave");
+    Command nearPrep = safelyReadPathCommand("Near&Prep");
+    Command farBalance = safelyReadPathCommand("Far&Balance");
+    Command farLeave = safelyReadPathCommand("Far&Leave");
+    Command farPrep = safelyReadPathCommand("Far&Prep");
+    m_autoPathChoice.addOption("Center&Balance", centerBalance);
+    m_autoPathChoice.addOption("Center&Leave", centerLeave);
+    m_autoPathChoice.addOption("Center&Prep", centerPrep);
+    m_autoPathChoice.addOption("Near&Balance", nearBalance);
+    m_autoPathChoice.addOption("Near&Leave", nearLeave);
+    m_autoPathChoice.addOption("Near&Prep", nearPrep);
+    m_autoPathChoice.addOption("Far&Balance", farBalance);
+    m_autoPathChoice.addOption("Far&Leave", farLeave);
+    m_autoPathChoice.addOption("Far&Prep", farPrep);
+
+    // Add selector for scoring low or mid.
+    Command moveToLow = new RunCommand(m_arm::moveToLow, m_arm);
+    Command moveToMid = new RunCommand(m_arm::moveToMid, m_arm);
+    m_autoScoringChoice.addOption("ScoreLow", moveToLow);
+    m_autoScoringChoice.addOption("ScoreMid", moveToMid);
+
+    // Add these options to the interface
+    SmartDashboard.putData(m_autoScoringChoice);
+    SmartDashboard.putData(m_autoPathChoice);
+  }
+
+  /**
+   * This is called by the system when automomous runs, and it
+   * should return the command you want to execute when automous
+   * mode begins.
+   */
+  public Command getAutonomousCommand() {
+
+    // Get the selections from the drive team.
+    Command doThePath = m_autoPathChoice.getSelected();
+    Command gotoScoringPosition = m_autoScoringChoice.getSelected().withTimeout(2);
+
+    // Prepare the rest of our actions.
+    Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.5);
+    Command yeetForSomeTime = new RunCommand(m_intake::yeetTheCubes, m_intake).withTimeout(0.75);
+    Command stopRollers = new InstantCommand(m_intake::stopThePlan, m_intake);
+    Command resetArm = new RunCommand(m_arm::stop, m_arm).withTimeout(0.75);
+    Command stopTheArm = new InstantCommand(m_arm::stop, m_arm);
+    Command anchorJustInCaseWeAreBalancing = new RunCommand(m_drivetrain::setXFormation, m_drivetrain);
+
+    // Sequence our actions so that we score first, and then perform our path.
+    // At the end, we anchor so we don't slip off the charging station.
     return resetArmCalibration
         .andThen(gotoScoringPosition)
         .andThen(yeetForSomeTime)
@@ -203,10 +201,6 @@ public class RobotContainer {
         .andThen(anchorJustInCaseWeAreBalancing);
   }
 
-  public Command getScoreCommand() {
-    return scoringChoice.getSelected();
-  }
-
   /**
    * Get the command corresponding to following the given trajectory.
    * If the path does not exist by that name, will return a no-op command
@@ -215,13 +209,13 @@ public class RobotContainer {
    * @param pathplannerName
    * @return Command
    */
-  public Command getPathCommand(String pathplannerName) {
+  private Command safelyReadPathCommand(String pathplannerName) {
     try {
       PathPlannerTrajectory trajectory = PathPlanner.loadPath(pathplannerName,
-          m_robotDrive.getPathPlannerConstraints());
-      return m_robotDrive.followTrajectoryCommand(trajectory, true);
+          m_drivetrain.getPathPlannerConstraints());
+      return m_drivetrain.followTrajectoryCommand(trajectory, true);
     } catch (Error err) {
-      // TODO: set some SmartDashboard state that the LightShow can detect an error
+      // TODO: set some SmartDashboard state so the LightShow can detect an error
       var noopCommand = new InstantCommand();
       return noopCommand;
     }
