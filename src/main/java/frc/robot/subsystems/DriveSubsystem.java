@@ -21,10 +21,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
+import frc.robot.helpers.RevMAXSwerveModule;
 import frc.robot.helpers.SubsystemInspector;
-import frc.robot.helpers.swerve.BaseSwerveModule;
-import frc.robot.helpers.swerve.RevMAXSwerveModule;
-import frc.robot.helpers.swerve.SwerveUtils;
+import frc.robot.helpers.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -34,10 +33,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final SubsystemInspector inspector = new SubsystemInspector(getSubsystem());
 
-  private final BaseSwerveModule m_frontLeft;
-  private final BaseSwerveModule m_frontRight;
-  private final BaseSwerveModule m_rearLeft;
-  private final BaseSwerveModule m_rearRight;
+  private final RevMAXSwerveModule m_frontLeft;
+  private final RevMAXSwerveModule m_frontRight;
+  private final RevMAXSwerveModule m_rearLeft;
+  private final RevMAXSwerveModule m_rearRight;
   public final WPI_Pigeon2 m_gyro;
   private final SwerveDriveKinematics m_kinematics;
   private final SlewRateLimiter m_magLimiter;
