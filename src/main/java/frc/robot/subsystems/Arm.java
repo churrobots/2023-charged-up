@@ -87,15 +87,24 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    FalconHelper.configureMotionMagic(
-        armMotor,
-        Tunables.fastAndFaster.get(),
-        Tunables.monsterInject.get(),
-        1,
-        Tunables.kP.get(),
-        Tunables.kF.get(),
-        Tunables.kI.get(),
-        Tunables.kD.get());
+    boolean didChange = Tunables.fastAndFaster.didChange() ||
+        Tunables.monsterInject.didChange() ||
+        Tunables.kP.didChange() ||
+        Tunables.kF.didChange() ||
+        Tunables.kI.didChange() ||
+        Tunables.kD.didChange();
+
+    if (didChange) {
+      FalconHelper.configureMotionMagic(
+          armMotor,
+          Tunables.fastAndFaster.get(),
+          Tunables.monsterInject.get(),
+          1,
+          Tunables.kP.get(),
+          Tunables.kF.get(),
+          Tunables.kI.get(),
+          Tunables.kD.get());
+    }
   }
 
 }
