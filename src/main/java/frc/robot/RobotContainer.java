@@ -156,7 +156,7 @@ public class RobotContainer {
     Command turnButtonB = new AngleSnap(-90, m_robotDrive);
     Command turnButtonA = new AngleSnap(180, m_robotDrive);
     Command turnButtonX = new AngleSnap(90, m_robotDrive);
-    Command setBalance = new JengaBalance(m_robotDrive, m_robotDrive.m_gyro);
+    Command setBalance = new JengaBalance(m_robotDrive);
 
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
