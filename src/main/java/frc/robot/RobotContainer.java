@@ -161,19 +161,14 @@ public class RobotContainer {
     Command anchorInPlace = new RunCommand(() -> m_robotDrive.setX(), m_robotDrive);
     Command resetGyro = new RunCommand(() -> m_robotDrive.resetGyro(), m_robotDrive);
 
-    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(5, 0, 0), m_lightShow));
-    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 5, 0), m_lightShow));
+    Command yeet = new RunCommand(intakeTheSecond::yeetTheCubes, intakeTheSecond);
+    Command yoink = new RunCommand(intakeTheSecond::yoinkTheCubes, intakeTheSecond);
 
     Command moveArmIntoCalibration = new RunCommand(armTheSecond::moveIntoCalibrationPosition, armTheSecond);
-    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(10, 10, 10), m_lightShow));
+    Command resetArmCalibration = new RunCommand(armTheSecond::resetCalibration, armTheSecond);
     Command pickHigh = new RunCommand(armTheSecond::receiveFromSingleSubstation, armTheSecond);
-    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 0, 5), m_lightShow));
-    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond)
-        .alongWith(new RunCommand(() -> m_lightShow.fillPercentage(0, 5, 5), m_lightShow));
+    Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
+    Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
 
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var backButton = new JoystickButton(m_driverController, Button.kBack.value);
