@@ -113,7 +113,6 @@ public class RobotContainer {
     FollowPathWithEvents farBalance = getPathCommand("Far&Balance", getScoreCommand());
     FollowPathWithEvents farLeave = getPathCommand("Far&Leave", getScoreCommand());
     FollowPathWithEvents farPrep = getPathCommand("Far&Prep", getScoreCommand());
-    FollowPathWithEvents garage = getPathCommand("TheMattGarageSpecial", getScoreCommand());
 
     Command moveToLow = new RunCommand(armTheSecond::moveToLow, armTheSecond);
     Command moveToMid = new RunCommand(armTheSecond::moveToMid, armTheSecond);
@@ -128,7 +127,6 @@ public class RobotContainer {
     pathChoice.addOption("Far&Balance", farBalance);
     pathChoice.addOption("Far&Leave", farLeave);
     pathChoice.addOption("Far&Prep", farPrep);
-    pathChoice.addOption("TheGarageSpecial", garage);
 
     scoringChoice.addOption("ScoreLow", moveToLow);
     scoringChoice.addOption("ScoreMid", moveToMid);
