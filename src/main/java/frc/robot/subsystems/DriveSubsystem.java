@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -63,6 +64,10 @@ public class DriveSubsystem extends SubsystemBase {
     public static final double kFrontRightChassisAngularOffset = 0;
     public static final double kRearLeftChassisAngularOffset = Math.PI;
     public static final double kRearRightChassisAngularOffset = Math.PI / 2;
+
+    // Trajectory speed constants.
+    public static final double kTrajectoryMaxSpeedMetersPerSecond = 3;
+    public static final double kTrajectoryMaxAccelerationMetersPerSecondSquared = 3;
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
@@ -406,4 +411,9 @@ public class DriveSubsystem extends SubsystemBase {
     return m_gyro.getPitch();
   }
 
+  public PathConstraints getPathPlannerConstraints() {
+    return new PathConstraints(
+        SpeedyHedgehogConstants.kTrajectoryMaxSpeedMetersPerSecond,
+        SpeedyHedgehogConstants.kTrajectoryMaxAccelerationMetersPerSecondSquared);
+  }
 }

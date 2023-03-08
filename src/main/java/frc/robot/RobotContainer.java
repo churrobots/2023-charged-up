@@ -56,17 +56,6 @@ public class RobotContainer {
     public static final double kDriveDeadband = 0.1;
   }
 
-  private static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-    // Constraint for the motion profiled robot angle controller
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-  }
-
   private double signedSquare(double val) {
     return val < 0 ? val * val * -1 : val * val;
   }
@@ -224,9 +213,7 @@ public class RobotContainer {
   }
 
   public FollowPathWithEvents getPathCommand(String name, Command moveArm) {
-    PathPlannerTrajectory examplePath = PathPlanner.loadPath(name,
-        new PathConstraints(AutoConstants.kMaxSpeedMetersPerSecond,
-            AutoConstants.kMaxAccelerationMetersPerSecondSquared));
+    PathPlannerTrajectory examplePath = PathPlanner.loadPath(name, m_robotDrive.getPathPlannerConstraints());
 
     HashMap<String, Command> eventMap = new HashMap<>();
 
