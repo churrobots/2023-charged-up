@@ -60,21 +60,20 @@ public class Arm extends SubsystemBase {
   }
 
   public void receiveFromSingleSubstation() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 13200);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
   }
 
   public void moveToLow() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 16000);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 11757);
   }
 
   public void moveToMid() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 8500);
 
   }
 
   public void resetArm() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 11000);
-
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, 0);
   }
 
   public void stop() {
