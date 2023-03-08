@@ -177,9 +177,16 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    // Get the selections from the drive team.
+    // Get the selections from the drive team. Handle nulls safely.
     Command doThePath = m_autoPathChoice.getSelected();
-    Command gotoScoringPosition = m_autoScoringChoice.getSelected().withTimeout(2);
+    if (doThePath == null) {
+      doThePath = new InstantCommand();
+    }
+    Command gotoScoringPosition = m_autoScoringChoice.getSelected();
+    if (gotoScoringPosition == null) {
+      gotoScoringPosition = new RunCommand(m_arm::moveToLow, m_arm);
+    }
+    gotoScoringPosition = gotoScoringPosition.withTimeout(2);
 
     // Prepare the rest of our actions.
     Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.5);
