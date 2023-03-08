@@ -26,7 +26,7 @@ public class Arm extends SubsystemBase {
 
   public Arm() {
     armMotor.configFactoryDefault();
-    var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 40, 45, 2.5);
+    var safeCurrentLimitsForFalcon = new StatorCurrentLimitConfiguration(true, 32, 35, 2.5);
     armMotor.configStatorCurrentLimit(safeCurrentLimitsForFalcon);
     armMotor.setNeutralMode(NeutralMode.Brake);
   }
