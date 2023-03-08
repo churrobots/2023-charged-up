@@ -63,12 +63,25 @@ public class LightShow extends SubsystemBase {
     // }
   }
 
+  public void setPurple() {
+    fillPercentage(5, 0, 5);
+  }
+
   @Override
   public void periodic() {
     // runDefaultLights();
+    if (RobotState.isAutonomous()) {
+      setPurple();
+    } else {
+      turnOff();
+    }
+  }
+
+  public void turnOff() {
+    fill(0, 0, 0);
   }
 
   public void runDefaultLights() {
-    this.fill(0, 0, 0);
+    turnOff();
   }
 }
