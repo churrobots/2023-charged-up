@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.FalconHelper;
+import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.Tunables;
 
 public class Arm extends SubsystemBase {
@@ -19,7 +20,12 @@ public class Arm extends SubsystemBase {
   private static final class Constants {
     private static final int armCanID = 12;
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
+    private static final int midCounts = 8500;
+    private static final int lowCounts = 11757;
+    private static final int substationCounts = 10000;
   }
+
+  private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
 
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
@@ -44,6 +50,8 @@ public class Arm extends SubsystemBase {
         double maxGravityFF = 0.07;
         armMotor.set(mode, value, DemandType.ArbitraryFeedForward,
             maxGravityFF * cosineScalar);
+        m_inspector.set("target", value);
+        m_inspector.set("actual", armMotor.getSelectedSensorPosition());
       } else {
         armMotor.set(mode, value);
       }
@@ -61,32 +69,31 @@ public class Arm extends SubsystemBase {
   }
 
   public void receiveFromSingleSubstation() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.substationCounts);
   }
 
   public void receiveFromSingleSubstation(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 10000 + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.substationCounts + offset);
   }
 
   public void moveToLow() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 11757);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.lowCounts);
   }
 
   public void moveToLow(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 11757 + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.lowCounts + offset);
   }
 
   public void moveToMid() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 8500);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.midCounts);
 
   }
 
   public void moveToMid(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, 8500 + offset);
-
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.midCounts + offset);
   }
 
   public void stop() {

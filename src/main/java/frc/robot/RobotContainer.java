@@ -61,7 +61,7 @@ public class RobotContainer {
     Command turnButtonB = new AngleSnap(-90, m_drivetrain);
     Command turnButtonA = new AngleSnap(180, m_drivetrain);
     Command turnButtonX = new AngleSnap(90, m_drivetrain);
-    Command setBalance = new JengaBalance(m_drivetrain);
+    // Command setBalance = new JengaBalance(m_drivetrain);
 
     Command anchorInPlace = new RunCommand(() -> m_drivetrain.setXFormation(), m_drivetrain);
     Command resetGyro = new RunCommand(() -> m_drivetrain.resetGyro(), m_drivetrain);
@@ -71,9 +71,10 @@ public class RobotContainer {
 
     Command moveArmIntoCalibration = new RunCommand(m_arm::moveIntoCalibrationPosition, m_arm);
     Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm);
-    Command moveToReceive = new RunCommand(m_arm::receiveFromSingleSubstation, m_arm);
-    Command moveToLow = new RunCommand(() -> m_arm.moveToLow(m_operatorController.getLeftY()), m_arm);
-    Command moveToMid = new RunCommand(() -> m_arm.moveToMid(m_operatorController.getLeftY()), m_arm);
+    Command moveToReceive = new RunCommand(() -> m_arm.receiveFromSingleSubstation(-m_operatorController.getLeftY()),
+        m_arm);
+    Command moveToLow = new RunCommand(() -> m_arm.moveToLow(-m_operatorController.getLeftY()), m_arm);
+    Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
 
     Command slowAndSteadyPeople = new RunCommand(
         () -> m_drivetrain.drive(
@@ -102,7 +103,7 @@ public class RobotContainer {
     bButton.whileTrue(turnButtonB);
     yButton.whileTrue(turnButtonY);
     xButton.whileTrue(turnButtonX);
-    backButton.whileTrue(setBalance);
+    // backButton.whileTrue(setBalance);
 
     leftBumper.whileTrue(anchorInPlace);
     rightBumper.whileTrue(slowAndSteadyPeople);
@@ -207,6 +208,7 @@ public class RobotContainer {
     Command resetArm = new RunCommand(m_arm::stop, m_arm).withTimeout(0.75);
     Command stopTheArm = new InstantCommand(m_arm::stop, m_arm);
     Command anchorJustInCaseWeAreBalancing = new RunCommand(m_drivetrain::setXFormation, m_drivetrain);
+    // Command tryToBalance = new JengaBalance(m_drivetrain);
 
     // Sequence our actions so that we score first, and then perform our path.
     // At the end, we anchor so we don't slip off the charging station.
@@ -217,6 +219,7 @@ public class RobotContainer {
         .andThen(resetArm)
         .andThen(stopTheArm)
         .andThen(doThePath)
+        // .andThen(tryToBalance)
         .andThen(anchorJustInCaseWeAreBalancing);
   }
 

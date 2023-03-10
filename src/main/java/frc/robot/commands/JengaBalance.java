@@ -18,7 +18,7 @@ public class JengaBalance extends PIDCommand {
         // Setpoint when gyro is level
         0,
         // Pipe output to turn robot
-        output -> drive.drive(output, 0, 0, true, true),
+        output -> drive.drive(output, 0, 0, false, true),
         // Require the drive
         drive);
   }
