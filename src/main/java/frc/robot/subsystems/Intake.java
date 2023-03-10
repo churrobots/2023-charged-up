@@ -22,7 +22,7 @@ public class Intake extends SubsystemBase {
 
   public boolean isYoinking() {
     boolean yoinking = false;
-    if (topCubeYoinker.get() > 0 && bottomCubeYoinker.get() > 0) {
+    if (topCubeYoinker.get() > 0.5 && bottomCubeYoinker.get() > 0.5) {
       yoinking = true;
     }
     return yoinking;
