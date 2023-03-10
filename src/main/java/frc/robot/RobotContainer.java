@@ -76,11 +76,12 @@ public class RobotContainer {
     Command moveToLow = new RunCommand(() -> m_arm.moveToLow(-m_operatorController.getLeftY()), m_arm);
     Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
 
+    double slowDriveScaling = 0.6;
     Command slowAndSteadyPeople = new RunCommand(
         () -> m_drivetrain.drive(
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY() / 2),
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY() * slowDriveScaling),
                 OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX() / 2),
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX() * slowDriveScaling),
                 OIConstants.kDriveDeadband),
             -MathUtil.applyDeadband(m_driverController.getRightX(),
                 OIConstants.kDriveDeadband),
@@ -131,9 +132,9 @@ public class RobotContainer {
 
     Command driveFieldRelativeWithJoysticks = new RunCommand(
         () -> m_drivetrain.drive(
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY()),
+            -MathUtil.applyDeadband(m_driverController.getLeftY(),
                 OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX()),
+            -MathUtil.applyDeadband(m_driverController.getLeftX(),
                 OIConstants.kDriveDeadband),
             -MathUtil.applyDeadband(m_driverController.getRightX(),
                 OIConstants.kDriveDeadband),
