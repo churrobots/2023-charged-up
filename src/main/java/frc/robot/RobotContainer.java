@@ -72,8 +72,19 @@ public class RobotContainer {
     Command moveArmIntoCalibration = new RunCommand(m_arm::moveIntoCalibrationPosition, m_arm);
     Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm);
     Command moveToReceive = new RunCommand(m_arm::receiveFromSingleSubstation, m_arm);
-    Command moveToLow = new RunCommand(m_arm::moveToLow, m_arm);
-    Command moveToMid = new RunCommand(m_arm::moveToMid, m_arm);
+    Command moveToLow = new RunCommand(() -> m_arm.moveToLow(m_operatorController.getLeftY()), m_arm);
+    Command moveToMid = new RunCommand(() -> m_arm.moveToMid(m_operatorController.getLeftY()), m_arm);
+
+    Command slowAndSteadyPeople = new RunCommand(
+        () -> m_drivetrain.drive(
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY() / 2),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX() / 2),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getRightX(),
+                OIConstants.kDriveDeadband),
+            true, true),
+        m_drivetrain);
 
     // TODO: give a "slow precise" mode for driver
 
@@ -94,7 +105,7 @@ public class RobotContainer {
     backButton.whileTrue(setBalance);
 
     leftBumper.whileTrue(anchorInPlace);
-    rightBumper.whileTrue(anchorInPlace);
+    rightBumper.whileTrue(slowAndSteadyPeople);
     startButton.whileTrue(resetGyro);
 
     // Operator
@@ -160,10 +171,11 @@ public class RobotContainer {
     m_autoPathChoice.addOption("Far&Prep", farPrep);
 
     // Add selector for scoring low or mid.
-    Command moveToLow = new RunCommand(m_arm::moveToLow, m_arm);
-    Command moveToMid = new RunCommand(m_arm::moveToMid, m_arm);
-    m_autoScoringChoice.addOption("ScoreLow", moveToLow);
-    m_autoScoringChoice.addOption("ScoreMid", moveToMid);
+
+    Command autoMoveToLow = new RunCommand(m_arm::moveToLow, m_arm);
+    Command autoMoveToMid = new RunCommand(m_arm::moveToMid, m_arm);
+    m_autoScoringChoice.addOption("ScoreLow", autoMoveToLow);
+    m_autoScoringChoice.addOption("ScoreMid", autoMoveToMid);
 
     // Add these options to the interface
     SmartDashboard.putData(m_autoScoringChoice);
