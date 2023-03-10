@@ -216,6 +216,10 @@ public class Drivetrain extends SubsystemBase {
     m_gyro.reset();
   }
 
+  public void resetGyroForAuto() {
+    m_gyro.setYaw(180);
+  }
+
   /**
    * Method to drive the robot using joystick info.
    *

@@ -201,7 +201,9 @@ public class RobotContainer {
     gotoScoringPosition = gotoScoringPosition.withTimeout(2);
 
     // Prepare the rest of our actions.
-    Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.5);
+    Command resetDrivetrainGyroSoFieldRelativeWorksAftward = new RunCommand(m_drivetrain::resetGyroForAuto,
+        m_drivetrain).withTimeout(0.25);
+    Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.25);
     Command yeetForSomeTime = new RunCommand(m_intake::yeetTheCubes, m_intake).withTimeout(0.75);
     Command stopRollers = new InstantCommand(m_intake::stopThePlan, m_intake);
     Command resetArm = new RunCommand(m_arm::stop, m_arm).withTimeout(0.75);
@@ -212,6 +214,7 @@ public class RobotContainer {
     // Sequence our actions so that we score first, and then perform our path.
     // At the end, we anchor so we don't slip off the charging station.
     return resetArmCalibration
+        .andThen(resetDrivetrainGyroSoFieldRelativeWorksAftward)
         .andThen(gotoScoringPosition)
         .andThen(yeetForSomeTime)
         .andThen(stopRollers)
