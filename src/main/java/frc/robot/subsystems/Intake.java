@@ -20,10 +20,18 @@ public class Intake extends SubsystemBase {
   public Intake() {
   }
 
+  public boolean isYoinking() {
+    boolean yoinking = false;
+    if (topCubeYoinker.get() > 0 && bottomCubeYoinker.get() > 0) {
+      yoinking = true;
+    }
+    return yoinking;
+  }
+
   public void yoinkTheCubes() {
     topCubeYoinker.set(.75);
     bottomCubeYoinker.set(.75);
-    
+
   }
 
   public void yeetTheCubes() {

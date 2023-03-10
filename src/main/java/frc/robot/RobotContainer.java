@@ -24,10 +24,10 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 public class RobotContainer {
 
-  private final LightShow m_lightShow = new LightShow();
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Arm m_arm = new Arm();
   private final Intake m_intake = new Intake();
+  private final LightShow m_lightShow = new LightShow(m_intake);
 
   SendableChooser<Command> m_autoScoringChoice = new SendableChooser<Command>();
   SendableChooser<Command> m_autoPathChoice = new SendableChooser<Command>();
@@ -87,8 +87,6 @@ public class RobotContainer {
                 OIConstants.kDriveDeadband),
             true, true),
         m_drivetrain);
-
-    // TODO: give a "slow precise" mode for driver
 
     // Driver
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
