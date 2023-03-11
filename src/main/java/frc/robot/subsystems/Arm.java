@@ -21,7 +21,7 @@ public class Arm extends SubsystemBase {
     private static final int armCanID = 12;
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
     private static final int midCounts = 8500;
-    private static final int lowCounts = 11757;
+    private static final int lowCounts = 11975;
     private static final int substationCounts = 10000;
   }
 
