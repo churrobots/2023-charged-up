@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.JengaBalance;
+import frc.robot.commands.YahtzeeBalance;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
@@ -159,9 +160,12 @@ public class RobotContainer {
     addAutoCommandToSelector("BlueCenter&Leave");
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");
+    addAutoCommandToSelector("BlueCenter&Balance");
+
     addAutoCommandToSelector("RedCenter&Leave");
     addAutoCommandToSelector("RedNear&Leave");
     addAutoCommandToSelector("RedFar&Leave");
+    addAutoCommandToSelector("RedCenter&Balance");
 
     // Add selector for scoring low or mid.
 
@@ -202,7 +206,7 @@ public class RobotContainer {
     Command resetArm = new RunCommand(m_arm::stop, m_arm).withTimeout(0.75);
     Command stopTheArm = new InstantCommand(m_arm::stop, m_arm);
     Command anchorJustInCaseWeAreBalancing = new RunCommand(m_drivetrain::setXFormation, m_drivetrain);
-    // Command tryToBalance = new JengaBalance(m_drivetrain);
+    Command tryToBalance = new YahtzeeBalance(m_drivetrain);
 
     // Sequence our actions so that we score first, and then perform our path.
     // At the end, we anchor so we don't slip off the charging station.
@@ -214,7 +218,7 @@ public class RobotContainer {
         .andThen(resetArm)
         .andThen(stopTheArm)
         .andThen(doThePath)
-        // .andThen(tryToBalance)
+        .andThen(tryToBalance)
         .andThen(anchorJustInCaseWeAreBalancing);
   }
 

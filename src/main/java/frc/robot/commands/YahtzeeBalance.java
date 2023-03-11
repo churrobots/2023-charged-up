@@ -44,6 +44,14 @@ public class YahtzeeBalance extends CommandBase {
     // What’s crucial is that we clamp the output to never accelerate more than 0.89
     // ft/sec. It is always running the gyro pid then until the end of autonomous.
     var angle = m_drivetrain.getPitch();
+    if (angle < -6.00) {
+      m_drivetrain.drive(0.05, 0.0, 0, false, true);
+    } else if (angle > 6.00) {
+      m_drivetrain.drive(-0.05, 0.0, 0, false, true);
+    } else {
+      m_drivetrain.setXFormation();
+    }
+
   }
 
   // Called once the command ends or is interrupted.
@@ -54,7 +62,6 @@ public class YahtzeeBalance extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    // TODO: return true when we're mostly balanced
     return false;
   }
 }
