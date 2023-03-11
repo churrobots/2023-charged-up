@@ -73,10 +73,16 @@ public class LightShow extends SubsystemBase {
     fillPercentage(0, 5, 0);
   }
 
+  public void setRed() {
+    fillPercentage(5, 0, 0);
+  }
+
   @Override
   public void periodic() {
     // runDefaultLights();
-    if (RobotState.isAutonomous()) {
+    if (RobotState.isEStopped()) {
+      setRed();
+    } else if (RobotState.isAutonomous()) {
       setPurple();
     } else if (m_Intake.isYoinking()) {
       setGreen();
