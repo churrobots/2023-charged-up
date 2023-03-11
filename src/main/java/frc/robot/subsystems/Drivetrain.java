@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.helpers.RevMAXSwerveModule;
+import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -110,6 +111,9 @@ public class Drivetrain extends SubsystemBase {
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
 
+  // Subsystem Inspector
+  private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
+
   public Drivetrain() {
 
     /////////////////////////////////////////////////////////////////
@@ -180,6 +184,7 @@ public class Drivetrain extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+    m_inspector.set("Pitch", m_gyro.getPitch());
   }
 
   /**
@@ -401,8 +406,8 @@ public class Drivetrain extends SubsystemBase {
                 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will
                        // only use feedforwards.
             this::setModuleStates, // Module states consumer
-            true, // Should the path be automatically mirrored depending on alliance color.
-                  // Optional, defaults to true
+            false, // Should the path be automatically mirrored depending on alliance color.
+                   // Optional, defaults to true
             this // Requires this drive subsystem
         ));
   }

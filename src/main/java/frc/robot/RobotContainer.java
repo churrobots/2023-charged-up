@@ -148,27 +148,20 @@ public class RobotContainer {
     m_intake.setDefaultCommand(stopRollers);
   }
 
+  private void addAutoCommandToSelector(String name) {
+    Command autoPathCommand = safelyReadPathCommand(name);
+    m_autoPathChoice.addOption(name, autoPathCommand);
+  }
+
   private void createAutonomousSelector() {
 
     // Add selector for choosing a trajectory to run.
-    Command centerBalance = safelyReadPathCommand("Center&Balance");
-    Command centerLeave = safelyReadPathCommand("Center&Leave");
-    Command centerPrep = safelyReadPathCommand("Center&Prep");
-    Command nearBalance = safelyReadPathCommand("Near&Balance");
-    Command nearLeave = safelyReadPathCommand("Near&Leave");
-    Command nearPrep = safelyReadPathCommand("Near&Prep");
-    Command farBalance = safelyReadPathCommand("Far&Balance");
-    Command farLeave = safelyReadPathCommand("Far&Leave");
-    Command farPrep = safelyReadPathCommand("Far&Prep");
-    m_autoPathChoice.addOption("Center&Balance", centerBalance);
-    m_autoPathChoice.addOption("Center&Leave", centerLeave);
-    m_autoPathChoice.addOption("Center&Prep", centerPrep);
-    m_autoPathChoice.addOption("Near&Balance", nearBalance);
-    m_autoPathChoice.addOption("Near&Leave", nearLeave);
-    m_autoPathChoice.addOption("Near&Prep", nearPrep);
-    m_autoPathChoice.addOption("Far&Balance", farBalance);
-    m_autoPathChoice.addOption("Far&Leave", farLeave);
-    m_autoPathChoice.addOption("Far&Prep", farPrep);
+    addAutoCommandToSelector("BlueCenter&Leave");
+    addAutoCommandToSelector("BlueNear&Leave");
+    addAutoCommandToSelector("BlueFar&Leave");
+    addAutoCommandToSelector("RedCenter&Leave");
+    addAutoCommandToSelector("RedNear&Leave");
+    addAutoCommandToSelector("RedFar&Leave");
 
     // Add selector for scoring low or mid.
 
