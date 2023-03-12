@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.helpers.RevMAXSwerveModule;
 import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.SwerveUtils;
@@ -222,7 +223,12 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetGyroForAuto() {
-    m_gyro.setYaw(180);
+    if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+      m_gyro.setYaw(180);
+
+    } else {
+      m_gyro.setYaw(-180);
+    }
   }
 
   /**
