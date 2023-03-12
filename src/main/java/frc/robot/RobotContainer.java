@@ -161,11 +161,12 @@ public class RobotContainer {
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");
     addAutoCommandToSelector("BlueCenter&Balance");
-
     addAutoCommandToSelector("RedCenter&Leave");
     addAutoCommandToSelector("RedNear&Leave");
     addAutoCommandToSelector("RedFar&Leave");
     addAutoCommandToSelector("RedCenter&Balance");
+    Command dontMove = new InstantCommand();
+    m_autoPathChoice.addOption("Do Nothing", dontMove);
 
     // Add selector for scoring low or mid.
 
