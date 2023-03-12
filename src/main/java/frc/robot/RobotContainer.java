@@ -27,7 +27,7 @@ public class RobotContainer {
 
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Arm m_arm = new Arm();
-  private final Intake m_intake = new Intake();
+  private final Intake m_intake = new Intake(m_arm);
   private final LightShow m_lightShow = new LightShow(m_intake);
 
   SendableChooser<Command> m_autoScoringChoice = new SendableChooser<Command>();

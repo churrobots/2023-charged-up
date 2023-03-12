@@ -20,12 +20,13 @@ public class Arm extends SubsystemBase {
   private static final class Constants {
     private static final int armCanID = 12;
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
-    private static final int midCounts = 8500;
+    private static final int midCounts = 8000;
     private static final int lowCounts = 11975;
     private static final int substationCounts = 10000;
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
+  private boolean shootMid;
 
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
@@ -41,6 +42,11 @@ public class Arm extends SubsystemBase {
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
       if (mode == TalonFXControlMode.MotionMagic) {
+        if (value == Constants.midCounts) {
+          shootMid = true;
+        } else {
+          shootMid = false;
+        }
         int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
         double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
         double currentPos = armMotor.getSelectedSensorPosition();
@@ -56,6 +62,10 @@ public class Arm extends SubsystemBase {
         armMotor.set(mode, value);
       }
     }
+  }
+
+  public boolean isShootingMid() {
+    return shootMid;
   }
 
   public void resetCalibration() {
