@@ -16,8 +16,10 @@ public class Intake extends SubsystemBase {
 
   private final WPI_VictorSPX topCubeYoinker = new WPI_VictorSPX(Constants.topRollerMotorID);
   private final WPI_VictorSPX bottomCubeYoinker = new WPI_VictorSPX(Constants.bottomRollerMotorID);
+  private Arm arm;
 
-  public Intake() {
+  public Intake(Arm arm) {
+    this.arm = arm;
   }
 
   public boolean isYoinking() {
@@ -35,9 +37,14 @@ public class Intake extends SubsystemBase {
   }
 
   public void yeetTheCubes() {
-    topCubeYoinker.set(-.75);
-    bottomCubeYoinker.set(-.75);
+    if (arm.isShootingMid()) {
+      topCubeYoinker.set(-1);
+      bottomCubeYoinker.set(-1);
+    } else {
+      topCubeYoinker.set(-.75);
+      bottomCubeYoinker.set(-.75);
 
+    }
   }
 
   public void stopThePlan() {
