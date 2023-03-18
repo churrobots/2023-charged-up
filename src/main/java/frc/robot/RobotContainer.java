@@ -258,6 +258,7 @@ public class RobotContainer {
     UsbCamera camera = CameraServer.startAutomaticCapture();
     camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
 
+    // TODO: replace MyVisionPipeline with Java generated vision pipeline from GRIP
     // visionThread = new VisionThread(camera, null /* new MyVisionPipeline() */,
     // pipeline -> {
     // if (!pipeline.filterContoursOutput().isEmpty()) {
