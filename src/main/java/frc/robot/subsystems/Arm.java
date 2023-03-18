@@ -53,7 +53,7 @@ public class Arm extends SubsystemBase {
         double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
         double radians = java.lang.Math.toRadians(degrees);
         double cosineScalar = java.lang.Math.cos(radians);
-        double maxGravityFF = 0.07;
+        double maxGravityFF = -0.07;
         armMotor.set(mode, value, DemandType.ArbitraryFeedForward,
             maxGravityFF * cosineScalar);
         m_inspector.set("target", value);
