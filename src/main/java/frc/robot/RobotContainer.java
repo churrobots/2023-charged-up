@@ -4,24 +4,27 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.AngleSnap;
-import frc.robot.commands.JengaBalance;
-import frc.robot.commands.YahtzeeBalance;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.LightShow;
-import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
+import frc.robot.commands.AngleSnap;
+import frc.robot.commands.YahtzeeBalance;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LightShow;
 
 public class RobotContainer {
 
@@ -42,6 +45,13 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
+  // Vision constants
+  private static final int IMG_WIDTH = 320;
+  private static final int IMG_HEIGHT = 240;
+  private VisionThread visionThread;
+  private final Object imgLock = new Object();
+  private double centerX = 0.0; // center of the detected blob
+
   private double signedSquare(double val) {
     return val < 0 ? val * val * -1 : val * val;
   }
@@ -53,6 +63,7 @@ public class RobotContainer {
     configureButtonBindings();
     ensureSubsystemsHaveDefaultCommands();
     createAutonomousSelector();
+    configureCamera();
   }
 
   private void configureButtonBindings() {
@@ -243,4 +254,19 @@ public class RobotContainer {
     }
   }
 
+  private void configureCamera() {
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+
+    // visionThread = new VisionThread(camera, null /* new MyVisionPipeline() */,
+    // pipeline -> {
+    // if (!pipeline.filterContoursOutput().isEmpty()) {
+    // Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+    // synchronized (imgLock) {
+    // centerX = r.x + (r.width / 2);
+    // }
+    // }
+    // });
+    // visionThread.start();
+  }
 }
