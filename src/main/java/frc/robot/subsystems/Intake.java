@@ -41,9 +41,8 @@ public class Intake extends SubsystemBase {
       topCubeYoinker.set(-1);
       bottomCubeYoinker.set(-1);
     } else {
-      topCubeYoinker.set(-.75);
-      bottomCubeYoinker.set(-.75);
-
+      topCubeYoinker.set(-0.25);
+      bottomCubeYoinker.set(0.1);
     }
   }
 

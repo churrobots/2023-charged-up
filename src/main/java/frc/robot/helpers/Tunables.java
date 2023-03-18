@@ -8,7 +8,7 @@ public final class Tunables {
   // public static final TunableDouble kF = new TunableDouble("kF", 0.05);
   // public static final TunableDouble kI = new TunableDouble("kI", 0.000001);
   // public static final TunableDouble kD = new TunableDouble("kD", 0);
-  public static final TunableDouble kP = new TunableDouble("kP", 0.04);
+  public static final TunableDouble kP = new TunableDouble("kP", 0.02);
   public static final TunableDouble kF = new TunableDouble("kF", 0.0);
   public static final TunableDouble kI = new TunableDouble("kI", 0.0);
   public static final TunableDouble kD = new TunableDouble("kD", 0.0);
