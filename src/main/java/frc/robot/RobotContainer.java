@@ -62,10 +62,6 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Teleop commands for the driver and operator.
-    Command turnButtonY = new AngleSnap(0, m_drivetrain);
-    Command turnButtonB = new AngleSnap(-90, m_drivetrain);
-    Command turnButtonA = new AngleSnap(180, m_drivetrain);
-    Command turnButtonX = new AngleSnap(90, m_drivetrain);
 
     Command anchorInPlace = new RunCommand(() -> m_drivetrain.setXFormation(), m_drivetrain);
     Command resetGyro = new RunCommand(() -> m_drivetrain.resetGyro(), m_drivetrain);
@@ -97,16 +93,6 @@ public class RobotContainer {
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
-    var aButton = new JoystickButton(m_driverController, Button.kA.value);
-    var bButton = new JoystickButton(m_driverController, Button.kB.value);
-    var yButton = new JoystickButton(m_driverController, Button.kY.value);
-    var xButton = new JoystickButton(m_driverController, Button.kX.value);
-
-    aButton.whileTrue(turnButtonA);
-    bButton.whileTrue(turnButtonB);
-    yButton.whileTrue(turnButtonY);
-    xButton.whileTrue(turnButtonX);
-    // backButton.whileTrue(setBalance);
 
     leftBumper.whileTrue(anchorInPlace);
     rightBumper.whileTrue(slowAndSteadyPeople);
@@ -120,7 +106,7 @@ public class RobotContainer {
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
-    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
+    // var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
 
     leftBumperOpButton.whileTrue(yoink);
     rightBumperOpButton.whileTrue(yeet);
@@ -129,7 +115,7 @@ public class RobotContainer {
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(moveToReceive);
-    bOpButton.whileTrue(moveToParty);
+    // bOpButton.whileTrue(moveToParty);
   }
 
   private void ensureSubsystemsHaveDefaultCommands() {
