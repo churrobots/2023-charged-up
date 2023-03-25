@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AngleSnap;
 import frc.robot.commands.YahtzeeBalance;
 import frc.robot.helpers.GreenIsolator;
 import frc.robot.subsystems.Arm;
@@ -75,7 +73,6 @@ public class RobotContainer {
         m_arm);
     Command moveToLow = new RunCommand(() -> m_arm.moveToLow(-m_operatorController.getLeftY()), m_arm);
     Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
-    Command moveToParty = new RunCommand(() -> m_arm.moveToParty(-m_operatorController.getLeftY()), m_arm);
 
     double slowDriveScaling = 0.4;
     Command slowAndSteadyPeople = new RunCommand(
@@ -106,7 +103,6 @@ public class RobotContainer {
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
-    // var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
 
     leftBumperOpButton.whileTrue(yoink);
     rightBumperOpButton.whileTrue(yeet);
@@ -115,7 +111,6 @@ public class RobotContainer {
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(moveToReceive);
-    // bOpButton.whileTrue(moveToParty);
   }
 
   private void ensureSubsystemsHaveDefaultCommands() {
