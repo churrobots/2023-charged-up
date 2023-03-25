@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.helpers.FalconHelper;
+import frc.robot.helpers.FalconUtils;
 import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.Tunables;
 
@@ -153,7 +153,7 @@ public class Arm extends SubsystemBase {
   }
 
   private void updateArmTuning() {
-    FalconHelper.configureMotionMagic(
+    FalconUtils.configureMotionMagic(
         armMotor,
         Tunables.kArmSpeed.get(),
         Tunables.kArmAcceleration.get(),

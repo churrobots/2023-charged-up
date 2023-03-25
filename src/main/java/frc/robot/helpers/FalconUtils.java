@@ -10,7 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 /**
  * Set of helpers for Falcon 500 motors.
  */
-public class FalconHelper {
+public class FalconUtils {
 
   /**
    * Set up a Falcon500 for MotionMagic. After you call this on the motor, you
