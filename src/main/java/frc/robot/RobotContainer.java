@@ -77,14 +77,14 @@ public class RobotContainer {
     Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
     Command moveToParty = new RunCommand(() -> m_arm.moveToParty(-m_operatorController.getLeftY()), m_arm);
 
-    double slowDriveScaling = 0.6;
+    double slowDriveScaling = 0.4;
     Command slowAndSteadyPeople = new RunCommand(
         () -> m_drivetrain.drive(
             -MathUtil.applyDeadband(m_driverController.getLeftY() * slowDriveScaling,
                 OIConstants.kDriveDeadband),
             -MathUtil.applyDeadband(m_driverController.getLeftX() * slowDriveScaling,
                 OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverController.getRightX(),
+            -MathUtil.applyDeadband(m_driverController.getRightX() * slowDriveScaling,
                 OIConstants.kDriveDeadband),
             true, true),
         m_drivetrain);
