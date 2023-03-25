@@ -13,24 +13,42 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.helpers.FalconUtils;
 import frc.robot.helpers.SubsystemInspector;
-import frc.robot.helpers.Tunables;
+import frc.robot.helpers.Tunables.TunableDouble;
+import frc.robot.helpers.Tunables.TunableInteger;
 
 public class Arm extends SubsystemBase {
 
   enum Level {
     LOW,
     MID,
-    PARTY
+    RESTING
   }
 
   private static final class Constants {
+
     private static final int armCanID = 12;
+
     private static final double calibrationVelocitySensorUnitsPerSecond = -3000;
+
     private static final int offsetMaxCounts = 1000;
+
+    private static final int aimBottomCounts = 11975;
+    private static final int aimMidCounts = 8000;
+    private static final int receiveFromSubstationCounts = 10000;
+
+    public static final TunableDouble kP = new TunableDouble("kP", 0.04);
+    public static final TunableDouble kF = new TunableDouble("kF", 0.0); // 0.05
+    public static final TunableDouble kI = new TunableDouble("kI", 0.0); // 0.000001
+    public static final TunableDouble kD = new TunableDouble("kD", 0.0);
+
+    public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 230000);
+    public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 225000);
+    public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 0);
+
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
-  private Level level = Level.PARTY;
+  private Level level = Level.RESTING;
 
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
@@ -57,13 +75,13 @@ public class Arm extends SubsystemBase {
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
       if (mode == TalonFXControlMode.MotionMagic) {
-        if (value >= Tunables.kMidCounts.get() - Constants.offsetMaxCounts
-            && value <= Tunables.kMidCounts.get() + Constants.offsetMaxCounts) {
+        if (value >= Constants.aimMidCounts - Constants.offsetMaxCounts
+            && value <= Constants.aimMidCounts + Constants.offsetMaxCounts) {
           level = Level.MID;
-        } else if (value > Tunables.kMidCounts.get() + Constants.offsetMaxCounts) {
+        } else if (value > Constants.aimMidCounts + Constants.offsetMaxCounts) {
           level = Level.LOW;
         } else {
-          level = Level.PARTY;
+          level = Level.RESTING;
         }
         armMotor.set(mode, value, DemandType.ArbitraryFeedForward, calculateFeedForward());
         m_inspector.set("target", value);
@@ -82,8 +100,8 @@ public class Arm extends SubsystemBase {
     return level == Level.LOW;
   }
 
-  public boolean isPartying() {
-    return level == Level.PARTY;
+  public boolean isResting() {
+    return level == Level.RESTING;
   }
 
   public void resetCalibration() {
@@ -98,34 +116,25 @@ public class Arm extends SubsystemBase {
 
   public void receiveFromSingleSubstation(double offset) {
     offset *= Constants.offsetMaxCounts;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kSubstationCounts.get() + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.receiveFromSubstationCounts + offset);
   }
 
   public void moveToLow() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kLowCounts.get());
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.aimBottomCounts);
   }
 
   public void moveToLow(double offset) {
     offset *= Constants.offsetMaxCounts;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kLowCounts.get() + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.aimBottomCounts + offset);
   }
 
   public void moveToMid() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get());
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.aimMidCounts);
   }
 
   public void moveToMid(double offset) {
     offset *= Constants.offsetMaxCounts;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get() + offset);
-  }
-
-  public void moveToParty() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kPartyCounts.get());
-  }
-
-  public void moveToParty(double offset) {
-    offset *= Constants.offsetMaxCounts;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kPartyCounts.get() + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.aimMidCounts + offset);
   }
 
   public void restTheArm() {
@@ -139,13 +148,13 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    boolean armTuningChanged = Tunables.kArmSpeed.didChange() ||
-        Tunables.kArmAcceleration.didChange() ||
-        Tunables.kArmSmoothing.didChange() ||
-        Tunables.kP.didChange() ||
-        Tunables.kF.didChange() ||
-        Tunables.kI.didChange() ||
-        Tunables.kD.didChange();
+    boolean armTuningChanged = Constants.kArmSpeed.didChange() ||
+        Constants.kArmAcceleration.didChange() ||
+        Constants.kArmSmoothing.didChange() ||
+        Constants.kP.didChange() ||
+        Constants.kF.didChange() ||
+        Constants.kI.didChange() ||
+        Constants.kD.didChange();
 
     if (armTuningChanged) {
       updateArmTuning();
@@ -155,13 +164,13 @@ public class Arm extends SubsystemBase {
   private void updateArmTuning() {
     FalconUtils.configureMotionMagic(
         armMotor,
-        Tunables.kArmSpeed.get(),
-        Tunables.kArmAcceleration.get(),
-        Tunables.kArmSmoothing.get(),
-        Tunables.kP.get(),
-        Tunables.kF.get(),
-        Tunables.kI.get(),
-        Tunables.kD.get());
+        Constants.kArmSpeed.get(),
+        Constants.kArmAcceleration.get(),
+        Constants.kArmSmoothing.get(),
+        Constants.kP.get(),
+        Constants.kF.get(),
+        Constants.kI.get(),
+        Constants.kD.get());
   }
 
 }

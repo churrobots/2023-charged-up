@@ -7,12 +7,22 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.helpers.Tunables;
 
 public class Intake extends SubsystemBase {
   private static final class Constants {
+
     private static final int topRollerMotorID = 10;
     private static final int bottomRollerMotorID = 11;
+
+    private static final double aimMidUpperRollerSpeedPercent = -1.00;
+    private static final double aimMidLowerRollerSpeedPercent = -1.00;
+
+    private static final double aimBottomUpperRollerSpeedPercent = -0.40;
+    private static final double aimBottomLowerRollerSpeedPercent = -0.40;
+
+    private static final double restingUpperRollerSpeedPercent = -1.00;
+    private static final double restingLowerRollerSpeedPercent = -1.00;
+
   }
 
   private final WPI_VictorSPX topCubeYoinker = new WPI_VictorSPX(Constants.topRollerMotorID);
@@ -39,14 +49,14 @@ public class Intake extends SubsystemBase {
 
   public void yeetTheCubes() {
     if (arm.isAimingMid()) {
-      topCubeYoinker.set(Tunables.kScoreMidTopRollerSpeed.get());
-      bottomCubeYoinker.set(Tunables.kScoreMidBottomRollerSpeed.get());
+      topCubeYoinker.set(Constants.aimMidUpperRollerSpeedPercent);
+      bottomCubeYoinker.set(Constants.aimMidLowerRollerSpeedPercent);
     } else if (arm.isAimingGround()) {
-      topCubeYoinker.set(Tunables.kScoreGroundTopRollerSpeed.get());
-      bottomCubeYoinker.set(Tunables.kScoreGroundBottomRollerSpeed.get());
+      topCubeYoinker.set(Constants.aimBottomUpperRollerSpeedPercent);
+      bottomCubeYoinker.set(Constants.aimBottomLowerRollerSpeedPercent);
     } else {
-      topCubeYoinker.set(Tunables.kYeetPartyTopRollerSpeed.get());
-      bottomCubeYoinker.set(Tunables.kYeetPartyBottomRollerSpeed.get());
+      topCubeYoinker.set(Constants.restingUpperRollerSpeedPercent);
+      bottomCubeYoinker.set(Constants.restingLowerRollerSpeedPercent);
     }
   }
 

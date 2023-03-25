@@ -1,35 +1,75 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.helpers;
 
-import frc.robot.helpers.Tuner.TunableDouble;
-import frc.robot.helpers.Tuner.TunableInteger;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Tunables {
-  // public static final TunableDouble kP = new TunableDouble("kP", 0.04);
-  // public static final TunableDouble kF = new TunableDouble("kF", 0.05);
-  // public static final TunableDouble kI = new TunableDouble("kI", 0.000001);
-  // public static final TunableDouble kD = new TunableDouble("kD", 0);
 
-  public static final TunableDouble kP = new TunableDouble("kP", 0.04);
-  public static final TunableDouble kF = new TunableDouble("kF", 0.0);
-  public static final TunableDouble kI = new TunableDouble("kI", 0.0);
-  public static final TunableDouble kD = new TunableDouble("kD", 0.0);
+  protected abstract static class TunableEntry<T> {
+    protected final T defaultValue;
+    protected final NetworkTableEntry entry;
+    protected long lastDetectedChange;
 
-  public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 230000);
-  public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 225000);
-  public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 0);
+    public TunableEntry(String name, T defaultValue) {
+      entry = SmartDashboard.getEntry(name);
+      this.defaultValue = defaultValue;
+      this._syncDefault();
+      lastDetectedChange = entry.getLastChange();
+    }
 
-  public static final TunableDouble kScoreMidTopRollerSpeed = new TunableDouble("kScoreMidTopRollerSpeed", -1);
-  public static final TunableDouble kScoreMidBottomRollerSpeed = new TunableDouble("kScoreMidBottomRollerSpeed", -1);
+    abstract protected void _syncDefault();
 
-  public static final TunableDouble kScoreGroundTopRollerSpeed = new TunableDouble("kScoreGroundTopRollerSpeed", -0.4);
-  public static final TunableDouble kScoreGroundBottomRollerSpeed = new TunableDouble("kScoreGroundBottomRollerSpeed",
-      -0.4);
-  public static final TunableDouble kYeetPartyTopRollerSpeed = new TunableDouble("kYeetPartyTopRollerSpeed", -1);
-  public static final TunableDouble kYeetPartyBottomRollerSpeed = new TunableDouble("kYeetPartyBottomRollerSpeed", -1);
+    public boolean didChange() {
+      boolean answer = lastDetectedChange != entry.getLastChange();
+      lastDetectedChange = entry.getLastChange();
+      return answer;
+    }
+  }
 
-  public static final TunableInteger kPartyCounts = new TunableInteger("kPartyCounts", 8750);
-  public static final TunableInteger kLowCounts = new TunableInteger("kLowCounts", 11975);
-  public static final TunableInteger kMidCounts = new TunableInteger("kMidCounts", 8000);
-  public static final TunableInteger kSubstationCounts = new TunableInteger("kSubstationCounts", 10000);
+  public static class TunableBoolean extends TunableEntry<Boolean> {
+    public TunableBoolean(String name, Boolean defaultValue) {
+      super(name, defaultValue);
+    }
+
+    protected void _syncDefault() {
+      entry.setBoolean(defaultValue);
+    }
+
+    public Boolean get() {
+      return entry.getBoolean(defaultValue);
+    }
+  }
+
+  public static class TunableDouble extends TunableEntry<Double> {
+    public TunableDouble(String name, double d) {
+      super(name, d);
+    }
+
+    protected void _syncDefault() {
+      entry.setDouble(defaultValue);
+    }
+
+    public Double get() {
+      return entry.getDouble(defaultValue);
+    }
+  }
+
+  public static class TunableInteger extends TunableEntry<Integer> {
+    public TunableInteger(String name, Integer defaultValue) {
+      super(name, defaultValue);
+    }
+
+    protected void _syncDefault() {
+      entry.setDouble(defaultValue);
+    }
+
+    public Integer get() {
+      return (int) Math.floor(entry.getDouble(defaultValue));
+    }
+  }
 
 }
