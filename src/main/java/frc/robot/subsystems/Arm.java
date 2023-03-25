@@ -17,16 +17,23 @@ import frc.robot.helpers.Tunables;
 
 public class Arm extends SubsystemBase {
 
+  enum Level {
+    LOW,
+    MID,
+    PARTY
+  }
+
   private static final class Constants {
     private static final int armCanID = 12;
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
-    private static final int midCounts = 8000;
-    private static final int lowCounts = 11975;
-    private static final int substationCounts = 10000;
+    // private static final int midCounts = 8000;
+    // private static final int lowCounts = 11975;
+    // private static final int substationCounts = 10000;
+    // private static final int partyCounts = 8750;
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
-  private boolean shootMid;
+  private Level level = Level.LOW;
 
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
@@ -42,10 +49,12 @@ public class Arm extends SubsystemBase {
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
       if (mode == TalonFXControlMode.MotionMagic) {
-        if (value == Constants.midCounts) {
-          shootMid = true;
+        if (value > Tunables.kMidCounts.get() - 1000 && value <= Tunables.kMidCounts.get() + 1500) {
+          level = Level.MID;
+        } else if (value > Tunables.kMidCounts.get() + 1500) {
+          level = Level.LOW;
         } else {
-          shootMid = false;
+          level = Level.PARTY;
         }
         int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
         double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
@@ -65,7 +74,15 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean isShootingMid() {
-    return shootMid;
+    return level == Level.MID;
+  }
+
+  public boolean isShootingGround() {
+    return level == Level.LOW;
+  }
+
+  public boolean isPartying() {
+    return level == Level.PARTY;
   }
 
   public void resetCalibration() {
@@ -79,31 +96,40 @@ public class Arm extends SubsystemBase {
   }
 
   public void receiveFromSingleSubstation() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.substationCounts);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kSubstationCounts.get());
   }
 
   public void receiveFromSingleSubstation(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.substationCounts + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kSubstationCounts.get() + offset);
   }
 
   public void moveToLow() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.lowCounts);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kLowCounts.get());
   }
 
   public void moveToLow(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.lowCounts + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kLowCounts.get() + offset);
   }
 
   public void moveToMid() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.midCounts);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get());
 
   }
 
   public void moveToMid(double offset) {
     offset *= 1000;
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.midCounts + offset);
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get() + offset);
+  }
+
+  public void moveToParty() {
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kPartyCounts.get());
+  }
+
+  public void moveToParty(double offset) {
+    offset *= 1000;
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kPartyCounts.get() + offset);
   }
 
   public void stop() {

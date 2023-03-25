@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.helpers.Tunables;
 
 public class Intake extends SubsystemBase {
   private static final class Constants {
@@ -38,11 +39,14 @@ public class Intake extends SubsystemBase {
 
   public void yeetTheCubes() {
     if (arm.isShootingMid()) {
-      topCubeYoinker.set(-1);
-      bottomCubeYoinker.set(-1);
+      topCubeYoinker.set(Tunables.kScoreMidTop.get());
+      bottomCubeYoinker.set(Tunables.kScoreMidBottom.get());
+    } else if (arm.isShootingGround()) {
+      topCubeYoinker.set(Tunables.kScoreGroundTop.get());
+      bottomCubeYoinker.set(Tunables.kScoreGroundBottom.get());
     } else {
-      topCubeYoinker.set(-0.25);
-      bottomCubeYoinker.set(0.1);
+      topCubeYoinker.set(Tunables.kYeetPartyTop.get());
+      bottomCubeYoinker.set(Tunables.kYeetPartyBottom.get());
     }
   }
 

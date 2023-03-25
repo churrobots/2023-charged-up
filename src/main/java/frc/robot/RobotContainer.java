@@ -4,10 +4,18 @@
 
 package frc.robot;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.vision.VisionThread;
@@ -25,6 +33,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
+import frc.robot.subsystems.GripPipeline;
 
 public class RobotContainer {
 
@@ -46,11 +55,10 @@ public class RobotContainer {
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
   // Vision constants
-  private static final int IMG_WIDTH = 320;
-  private static final int IMG_HEIGHT = 240;
+  private static final int IMG_WIDTH = 160;
+  private static final int IMG_HEIGHT = 120;
   private VisionThread visionThread;
   private final Object imgLock = new Object();
-  private double centerX = 0.0; // center of the detected blob
 
   private double signedSquare(double val) {
     return val < 0 ? val * val * -1 : val * val;
@@ -87,6 +95,7 @@ public class RobotContainer {
         m_arm);
     Command moveToLow = new RunCommand(() -> m_arm.moveToLow(-m_operatorController.getLeftY()), m_arm);
     Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
+    Command moveToParty = new RunCommand(() -> m_arm.moveToParty(-m_operatorController.getLeftY()), m_arm);
 
     double slowDriveScaling = 0.6;
     Command slowAndSteadyPeople = new RunCommand(
@@ -128,6 +137,7 @@ public class RobotContainer {
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
+    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
 
     leftBumperOpButton.whileTrue(yoink);
     rightBumperOpButton.whileTrue(yeet);
@@ -136,6 +146,7 @@ public class RobotContainer {
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(moveToReceive);
+    bOpButton.whileTrue(moveToParty);
   }
 
   private void ensureSubsystemsHaveDefaultCommands() {
@@ -255,19 +266,33 @@ public class RobotContainer {
   }
 
   private void configureCamera() {
+    // Get the UsbCamera from CameraServer
     UsbCamera camera = CameraServer.startAutomaticCapture();
     camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+    CvSource outputStream = CameraServer.putVideo("Sonic", IMG_WIDTH, IMG_HEIGHT);
 
-    // TODO: replace MyVisionPipeline with Java generated vision pipeline from GRIP
-    // visionThread = new VisionThread(camera, null /* new MyVisionPipeline() */,
-    // pipeline -> {
-    // if (!pipeline.filterContoursOutput().isEmpty()) {
-    // Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-    // synchronized (imgLock) {
-    // centerX = r.x + (r.width / 2);
-    // }
-    // }
-    // });
-    // visionThread.start();
+    visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
+      synchronized (imgLock) {
+
+        // This cannot be 'true'. The program will never exit if it is. This
+        // lets the robot stop this thread when restarting robot code or
+        // deploying.
+        CvSink cvSink = CameraServer.getVideo();
+        Mat mat = new Mat();
+        while (!Thread.interrupted()) {
+          // Give the output stream a new image to display
+          if (cvSink.grabFrame(mat) == 0) {
+            // Send the output the error.
+            outputStream.notifyError(cvSink.getError());
+            // skip the rest of the current iteration
+            continue;
+          }
+          pipeline.process(mat);
+          outputStream.putFrame(pipeline.maskOutput());
+        }
+      }
+    });
+    visionThread.setDaemon(true);
+    visionThread.start();
   }
 }
