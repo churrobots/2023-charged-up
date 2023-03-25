@@ -4,21 +4,10 @@
 
 package frc.robot;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -29,11 +18,11 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AngleSnap;
 import frc.robot.commands.YahtzeeBalance;
+import frc.robot.helpers.GreenIsolator;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LightShow;
-import frc.robot.subsystems.GripPipeline;
 
 public class RobotContainer {
 
@@ -54,16 +43,6 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
-  // Vision constants
-  private static final int IMG_WIDTH = 160;
-  private static final int IMG_HEIGHT = 120;
-  private VisionThread visionThread;
-  private final Object imgLock = new Object();
-
-  private double signedSquare(double val) {
-    return val < 0 ? val * val * -1 : val * val;
-  }
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -71,7 +50,7 @@ public class RobotContainer {
     configureButtonBindings();
     ensureSubsystemsHaveDefaultCommands();
     createAutonomousSelector();
-    configureCamera();
+    GreenIsolator.createCameraStream("Sonic");
   }
 
   private void configureButtonBindings() {
@@ -100,9 +79,9 @@ public class RobotContainer {
     double slowDriveScaling = 0.6;
     Command slowAndSteadyPeople = new RunCommand(
         () -> m_drivetrain.drive(
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftY() * slowDriveScaling),
+            -MathUtil.applyDeadband(m_driverController.getLeftY() * slowDriveScaling,
                 OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(signedSquare(m_driverController.getLeftX() * slowDriveScaling),
+            -MathUtil.applyDeadband(m_driverController.getLeftX() * slowDriveScaling,
                 OIConstants.kDriveDeadband),
             -MathUtil.applyDeadband(m_driverController.getRightX(),
                 OIConstants.kDriveDeadband),
@@ -111,7 +90,6 @@ public class RobotContainer {
 
     // Driver
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
-    var backButton = new JoystickButton(m_driverController, Button.kBack.value);
     var leftBumper = new JoystickButton(m_driverController, Button.kLeftBumper.value);
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
     var aButton = new JoystickButton(m_driverController, Button.kA.value);
@@ -265,34 +243,4 @@ public class RobotContainer {
     }
   }
 
-  private void configureCamera() {
-    // Get the UsbCamera from CameraServer
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-    CvSource outputStream = CameraServer.putVideo("Sonic", IMG_WIDTH, IMG_HEIGHT);
-
-    visionThread = new VisionThread(camera, new GripPipeline(), pipeline -> {
-      synchronized (imgLock) {
-
-        // This cannot be 'true'. The program will never exit if it is. This
-        // lets the robot stop this thread when restarting robot code or
-        // deploying.
-        CvSink cvSink = CameraServer.getVideo();
-        Mat mat = new Mat();
-        while (!Thread.interrupted()) {
-          // Give the output stream a new image to display
-          if (cvSink.grabFrame(mat) == 0) {
-            // Send the output the error.
-            outputStream.notifyError(cvSink.getError());
-            // skip the rest of the current iteration
-            continue;
-          }
-          pipeline.process(mat);
-          outputStream.putFrame(pipeline.maskOutput());
-        }
-      }
-    });
-    visionThread.setDaemon(true);
-    visionThread.start();
-  }
 }

@@ -1,6 +1,11 @@
-package frc.robot.subsystems;
+package frc.robot.helpers;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.vision.VisionPipeline;
+import edu.wpi.first.vision.VisionThread;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.*;
@@ -13,10 +18,45 @@ import org.opencv.imgproc.*;
  *
  * @author GRIP
  */
-public class GripPipeline implements VisionPipeline {
+public class GreenIsolator implements VisionPipeline {
+
+  public static void createCameraStream(String name) {
+
+    int IMG_WIDTH = 160;
+    int IMG_HEIGHT = 120;
+    Object imgLock = new Object();
+
+    // Get the UsbCamera from CameraServer
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+    CvSource outputStream = CameraServer.putVideo(name, IMG_WIDTH, IMG_HEIGHT);
+
+    VisionThread visionThread = new VisionThread(camera, new GreenIsolator(), pipeline -> {
+      synchronized (imgLock) {
+
+        // This cannot be 'true'. The program will never exit if it is. This
+        // lets the robot stop this thread when restarting robot code or
+        // deploying.
+        CvSink cvSink = CameraServer.getVideo();
+        Mat mat = new Mat();
+        while (!Thread.interrupted()) {
+          // Give the output stream a new image to display
+          if (cvSink.grabFrame(mat) == 0) {
+            // Send the output the error.
+            outputStream.notifyError(cvSink.getError());
+            // skip the rest of the current iteration
+            continue;
+          }
+          pipeline.process(mat);
+          outputStream.putFrame(pipeline.maskOutput());
+        }
+      }
+    });
+    visionThread.setDaemon(true);
+    visionThread.start();
+  }
 
   // Outputs
-  private Mat resizeImageOutput = new Mat();
   private Mat blurOutput = new Mat();
   private Mat hsvThresholdOutput = new Mat();
   private Mat maskOutput = new Mat();
@@ -31,17 +71,9 @@ public class GripPipeline implements VisionPipeline {
    */
   @Override
   public void process(Mat source0) {
-    // Step Resize_Image0:
-    // Mat resizeImageInput = source0;
-    // double resizeImageWidth = 160.0;
-    // double resizeImageHeight = 120.0;
-    // int resizeImageInterpolation = Imgproc.INTER_CUBIC;
-    // resizeImage(resizeImageInput, resizeImageWidth, resizeImageHeight,
-    // resizeImageInterpolation, resizeImageOutput);
-    resizeImageOutput = source0;
 
     // Step Blur0:
-    Mat blurInput = resizeImageOutput;
+    Mat blurInput = source0;
     BlurType blurType = BlurType.get("Gaussian Blur");
     double blurRadius = 0.0;
     blur(blurInput, blurType, blurRadius, blurOutput);
@@ -54,19 +86,10 @@ public class GripPipeline implements VisionPipeline {
     hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
     // Step Mask0:
-    Mat maskInput = resizeImageOutput;
+    Mat maskInput = source0;
     Mat maskMask = hsvThresholdOutput;
     mask(maskInput, maskMask, maskOutput);
 
-  }
-
-  /**
-   * This method is a generated getter for the output of a Resize_Image.
-   * 
-   * @return Mat output from Resize_Image.
-   */
-  public Mat resizeImageOutput() {
-    return resizeImageOutput;
   }
 
   /**
@@ -94,20 +117,6 @@ public class GripPipeline implements VisionPipeline {
    */
   public Mat maskOutput() {
     return maskOutput;
-  }
-
-  /**
-   * Scales and image to an exact size.
-   * 
-   * @param input         The image on which to perform the Resize.
-   * @param width         The width of the output in pixels.
-   * @param height        The height of the output in pixels.
-   * @param interpolation The type of interpolation.
-   * @param output        The image in which to store the output.
-   */
-  private void resizeImage(Mat input, double width, double height,
-      int interpolation, Mat output) {
-    Imgproc.resize(input, output, new Size(width, height), 0.0, 0.0, interpolation);
   }
 
   /**
