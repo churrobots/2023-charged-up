@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
 
   private static final class Constants {
     private static final int armCanID = 12;
-    private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
+    private static final double calibrationVelocitySensorUnitsPerSecond = -3000;
     private static final int offsetMaxCounts = 1000;
   }
 
@@ -50,7 +50,7 @@ public class Arm extends SubsystemBase {
     double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
     double radians = java.lang.Math.toRadians(degrees);
     double cosineScalar = java.lang.Math.cos(radians);
-    double maxGravityFF = -0.07;
+    double maxGravityFF = -0.12;
     return maxGravityFF * cosineScalar;
   }
 

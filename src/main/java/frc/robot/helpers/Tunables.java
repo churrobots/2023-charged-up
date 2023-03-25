@@ -9,14 +9,14 @@ public final class Tunables {
   // public static final TunableDouble kI = new TunableDouble("kI", 0.000001);
   // public static final TunableDouble kD = new TunableDouble("kD", 0);
 
-  public static final TunableDouble kP = new TunableDouble("kP", 0.02);
+  public static final TunableDouble kP = new TunableDouble("kP", 0.04);
   public static final TunableDouble kF = new TunableDouble("kF", 0.0);
   public static final TunableDouble kI = new TunableDouble("kI", 0.0);
   public static final TunableDouble kD = new TunableDouble("kD", 0.0);
 
-  public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 30000);
-  public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 25000);
-  public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 1);
+  public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 230000);
+  public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 225000);
+  public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 0);
 
   public static final TunableDouble kScoreMidTopRollerSpeed = new TunableDouble("kScoreMidTopRollerSpeed", -1);
   public static final TunableDouble kScoreMidBottomRollerSpeed = new TunableDouble("kScoreMidBottomRollerSpeed", -1);
