@@ -38,15 +38,15 @@ public class Intake extends SubsystemBase {
   }
 
   public void yeetTheCubes() {
-    if (arm.isShootingMid()) {
-      topCubeYoinker.set(Tunables.kScoreMidTop.get());
-      bottomCubeYoinker.set(Tunables.kScoreMidBottom.get());
-    } else if (arm.isShootingGround()) {
-      topCubeYoinker.set(Tunables.kScoreGroundTop.get());
-      bottomCubeYoinker.set(Tunables.kScoreGroundBottom.get());
+    if (arm.isAimingMid()) {
+      topCubeYoinker.set(Tunables.kScoreMidTopRollerSpeed.get());
+      bottomCubeYoinker.set(Tunables.kScoreMidBottomRollerSpeed.get());
+    } else if (arm.isAimingGround()) {
+      topCubeYoinker.set(Tunables.kScoreGroundTopRollerSpeed.get());
+      bottomCubeYoinker.set(Tunables.kScoreGroundBottomRollerSpeed.get());
     } else {
-      topCubeYoinker.set(Tunables.kYeetPartyTop.get());
-      bottomCubeYoinker.set(Tunables.kYeetPartyBottom.get());
+      topCubeYoinker.set(Tunables.kYeetPartyTopRollerSpeed.get());
+      bottomCubeYoinker.set(Tunables.kYeetPartyBottomRollerSpeed.get());
     }
   }
 

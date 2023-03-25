@@ -60,7 +60,6 @@ public class RobotContainer {
     Command turnButtonB = new AngleSnap(-90, m_drivetrain);
     Command turnButtonA = new AngleSnap(180, m_drivetrain);
     Command turnButtonX = new AngleSnap(90, m_drivetrain);
-    // Command setBalance = new JengaBalance(m_drivetrain);
 
     Command anchorInPlace = new RunCommand(() -> m_drivetrain.setXFormation(), m_drivetrain);
     Command resetGyro = new RunCommand(() -> m_drivetrain.resetGyro(), m_drivetrain);
@@ -140,7 +139,7 @@ public class RobotContainer {
             true, true),
         m_drivetrain);
 
-    Command safelyRestTheArm = new RunCommand(m_arm::stop, m_arm);
+    Command safelyRestTheArm = new RunCommand(m_arm::restTheArm, m_arm);
     Command stopRollers = new RunCommand(m_intake::stopThePlan, m_intake);
 
     // Set defaults for all subsystems
@@ -204,8 +203,8 @@ public class RobotContainer {
     Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.25);
     Command yeetForSomeTime = new RunCommand(m_intake::yeetTheCubes, m_intake).withTimeout(0.75);
     Command stopRollers = new InstantCommand(m_intake::stopThePlan, m_intake);
-    Command resetArm = new RunCommand(m_arm::stop, m_arm).withTimeout(0.75);
-    Command stopTheArm = new InstantCommand(m_arm::stop, m_arm);
+    Command resetArm = new RunCommand(m_arm::restTheArm, m_arm).withTimeout(0.75);
+    Command stopTheArm = new InstantCommand(m_arm::restTheArm, m_arm);
     Command anchorJustInCaseWeAreBalancing = new RunCommand(m_drivetrain::setXFormation, m_drivetrain);
     Command tryToBalance = new YahtzeeBalance(m_drivetrain);
 

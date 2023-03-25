@@ -26,10 +26,7 @@ public class Arm extends SubsystemBase {
   private static final class Constants {
     private static final int armCanID = 12;
     private static final double calibrationVelocitySensorUnitsPerSecond = -1000;
-    // private static final int midCounts = 8000;
-    // private static final int lowCounts = 11975;
-    // private static final int substationCounts = 10000;
-    // private static final int partyCounts = 8750;
+    private static final int offsetMaxCounts = 1000;
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
@@ -46,25 +43,29 @@ public class Arm extends SubsystemBase {
     updateArmTuning();
   }
 
+  private double calculateFeedForward() {
+    int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
+    double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
+    double currentPos = armMotor.getSelectedSensorPosition();
+    double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
+    double radians = java.lang.Math.toRadians(degrees);
+    double cosineScalar = java.lang.Math.cos(radians);
+    double maxGravityFF = -0.07;
+    return maxGravityFF * cosineScalar;
+  }
+
   private void runMotorWithSafety(TalonFXControlMode mode, double value) {
     if (m_isCalibrated) {
       if (mode == TalonFXControlMode.MotionMagic) {
-        if (value > Tunables.kMidCounts.get() - 1000 && value <= Tunables.kMidCounts.get() + 1500) {
+        if (value >= Tunables.kMidCounts.get() - Constants.offsetMaxCounts
+            && value <= Tunables.kMidCounts.get() + Constants.offsetMaxCounts) {
           level = Level.MID;
-        } else if (value > Tunables.kMidCounts.get() + 1500) {
+        } else if (value > Tunables.kMidCounts.get() + Constants.offsetMaxCounts) {
           level = Level.LOW;
         } else {
           level = Level.PARTY;
         }
-        int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
-        double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
-        double currentPos = armMotor.getSelectedSensorPosition();
-        double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
-        double radians = java.lang.Math.toRadians(degrees);
-        double cosineScalar = java.lang.Math.cos(radians);
-        double maxGravityFF = -0.07;
-        armMotor.set(mode, value, DemandType.ArbitraryFeedForward,
-            maxGravityFF * cosineScalar);
+        armMotor.set(mode, value, DemandType.ArbitraryFeedForward, calculateFeedForward());
         m_inspector.set("target", value);
         m_inspector.set("actual", armMotor.getSelectedSensorPosition());
       } else {
@@ -73,11 +74,11 @@ public class Arm extends SubsystemBase {
     }
   }
 
-  public boolean isShootingMid() {
+  public boolean isAimingMid() {
     return level == Level.MID;
   }
 
-  public boolean isShootingGround() {
+  public boolean isAimingGround() {
     return level == Level.LOW;
   }
 
@@ -95,12 +96,8 @@ public class Arm extends SubsystemBase {
     armMotor.set(TalonFXControlMode.Velocity, Constants.calibrationVelocitySensorUnitsPerSecond);
   }
 
-  public void receiveFromSingleSubstation() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kSubstationCounts.get());
-  }
-
   public void receiveFromSingleSubstation(double offset) {
-    offset *= 1000;
+    offset *= Constants.offsetMaxCounts;
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kSubstationCounts.get() + offset);
   }
 
@@ -109,17 +106,16 @@ public class Arm extends SubsystemBase {
   }
 
   public void moveToLow(double offset) {
-    offset *= 1000;
+    offset *= Constants.offsetMaxCounts;
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kLowCounts.get() + offset);
   }
 
   public void moveToMid() {
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get());
-
   }
 
   public void moveToMid(double offset) {
-    offset *= 1000;
+    offset *= Constants.offsetMaxCounts;
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kMidCounts.get() + offset);
   }
 
@@ -128,11 +124,11 @@ public class Arm extends SubsystemBase {
   }
 
   public void moveToParty(double offset) {
-    offset *= 1000;
+    offset *= Constants.offsetMaxCounts;
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Tunables.kPartyCounts.get() + offset);
   }
 
-  public void stop() {
+  public void restTheArm() {
     if (armMotor.getSelectedSensorPosition() > 6000) {
       runMotorWithSafety(TalonFXControlMode.MotionMagic, 3000);
     } else {
@@ -143,14 +139,15 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    boolean didChange = Tunables.fastAndFaster.didChange() ||
-        Tunables.monsterInject.didChange() ||
+    boolean armTuningChanged = Tunables.kArmSpeed.didChange() ||
+        Tunables.kArmAcceleration.didChange() ||
+        Tunables.kArmSmoothing.didChange() ||
         Tunables.kP.didChange() ||
         Tunables.kF.didChange() ||
         Tunables.kI.didChange() ||
         Tunables.kD.didChange();
 
-    if (didChange) {
+    if (armTuningChanged) {
       updateArmTuning();
     }
   }
@@ -158,9 +155,9 @@ public class Arm extends SubsystemBase {
   private void updateArmTuning() {
     FalconHelper.configureMotionMagic(
         armMotor,
-        Tunables.fastAndFaster.get(),
-        Tunables.monsterInject.get(),
-        Tunables.kSmoothing.get(),
+        Tunables.kArmSpeed.get(),
+        Tunables.kArmAcceleration.get(),
+        Tunables.kArmSmoothing.get(),
         Tunables.kP.get(),
         Tunables.kF.get(),
         Tunables.kI.get(),
