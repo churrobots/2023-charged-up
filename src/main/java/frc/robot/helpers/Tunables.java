@@ -21,10 +21,10 @@ public final class Tunables {
   public static final TunableDouble kScoreMidTopRollerSpeed = new TunableDouble("kScoreMidTopRollerSpeed", -1);
   public static final TunableDouble kScoreMidBottomRollerSpeed = new TunableDouble("kScoreMidBottomRollerSpeed", -1);
 
-  public static final TunableDouble kScoreGroundTopRollerSpeed = new TunableDouble("kScoreGroundTopRollerSpeed", -0.25);
+  public static final TunableDouble kScoreGroundTopRollerSpeed = new TunableDouble("kScoreGroundTopRollerSpeed", -0.4);
   public static final TunableDouble kScoreGroundBottomRollerSpeed = new TunableDouble("kScoreGroundBottomRollerSpeed",
-      0.1);
-  public static final TunableDouble kYeetPartyTopRollerSpeed = new TunableDouble("kYeetPartyTopRollerSpeed", -0.75);
+      -0.4);
+  public static final TunableDouble kYeetPartyTopRollerSpeed = new TunableDouble("kYeetPartyTopRollerSpeed", -1);
   public static final TunableDouble kYeetPartyBottomRollerSpeed = new TunableDouble("kYeetPartyBottomRollerSpeed", -1);
 
   public static final TunableInteger kPartyCounts = new TunableInteger("kPartyCounts", 8750);
