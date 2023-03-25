@@ -68,7 +68,7 @@ public class Drivetrain extends SubsystemBase {
     // know if it's comparable characteristics so we might want to reconsider, the
     // original values were all 1.0
     public static final double kPXController = 2;
-    public static final double kPYController = 4;
+    public static final double kPYController = 2;
     public static final double kPThetaController = 0.04;
 
     // Autonomous: Trajectory speed constants
@@ -202,7 +202,7 @@ public class Drivetrain extends SubsystemBase {
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdometry(Pose2d pose) {
+  public void resetPose(Pose2d pose) {
     m_odometry.resetPosition(
         getGyroAngle(),
         new SwerveModulePosition[] {
@@ -391,7 +391,7 @@ public class Drivetrain extends SubsystemBase {
         new InstantCommand(() -> {
           // Reset odometry for the first path you run during auto
           if (isFirstPath) {
-            this.resetOdometry(traj.getInitialHolonomicPose());
+            this.resetPose(traj.getInitialHolonomicPose());
           }
         }),
 
@@ -416,6 +416,14 @@ public class Drivetrain extends SubsystemBase {
                    // Optional, defaults to true
             this // Requires this drive subsystem
         ));
+  }
+
+  public double getPIDX() {
+    return SpeedyHedgehogConstants.kPXController;
+  }
+
+  public double getPIDTheta() {
+    return SpeedyHedgehogConstants.kPThetaController;
   }
 
   public double getPitch() {

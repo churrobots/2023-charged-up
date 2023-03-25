@@ -4,8 +4,14 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
@@ -148,27 +154,87 @@ public class RobotContainer {
     m_intake.setDefaultCommand(stopRollers);
   }
 
+  /**
+   * Add the command corresponding to following the given trajectory.
+   * If the path does not exist by that name, will add a no-op command
+   * so that at least the robot does not crash on bootup.
+   * 
+   * @param name
+   * @return Command
+   */
   private void addAutoCommandToSelector(String name) {
-    Command autoPathCommand = safelyReadPathCommand(name);
+    Command autoPathCommand;
+    try {
+      PathPlannerTrajectory trajectory = PathPlanner.loadPath(name,
+          m_drivetrain.getPathPlannerConstraints());
+      autoPathCommand = m_drivetrain.followTrajectoryCommand(trajectory, true);
+    } catch (Error err) {
+      // TODO: set some SmartDashboard state so the LightShow can detect an error
+      var noopCommand = new InstantCommand();
+      autoPathCommand = noopCommand;
+    }
+    m_autoPathChoice.addOption(name, autoPathCommand);
+  }
+
+  /**
+   * Add the command corresponding to following the given trajectory.
+   * If the path does not exist by that name, will add a no-op command
+   * so that at least the robot does not crash on bootup.
+   * 
+   * This will honor Event Markers on the path using AutoBuilder
+   * https://github.com/mjansen4857/pathplanner/wiki/PathPlannerLib:-Java-Usage#autobuilder
+   * 
+   * @param name
+   * @return Command
+   */
+  private void addAutoCommandToSelector(String name, SwerveAutoBuilder builder) {
+    Command autoPathCommand;
+    try {
+      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
+          m_drivetrain.getPathPlannerConstraints());
+      autoPathCommand = builder.fullAuto(pathGroup);
+    } catch (Error err) {
+      // TODO: set some SmartDashboard state so the LightShow can detect an error
+      var noopCommand = new InstantCommand();
+      autoPathCommand = noopCommand;
+    }
     m_autoPathChoice.addOption(name, autoPathCommand);
   }
 
   private void createAutonomousSelector() {
 
+    // Create an AutoBuilder we can use to execute commands along a path.
+    // https://github.com/mjansen4857/pathplanner/wiki/PathPlannerLib:-Java-Usage#autobuilder
+    // Global event map for all autobuilder commands.
+    HashMap<String, Command> eventMap = new HashMap<>();
+    eventMap.put("AutoMoveToMid", new RunCommand(m_arm::moveToMid, m_arm));
+
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+        m_drivetrain::getPose,
+        m_drivetrain::resetPose,
+        m_drivetrain.getKinematics(),
+        new PIDConstants(m_drivetrain.getPIDX(), 0.0, 0.0),
+        new PIDConstants(m_drivetrain.getPIDTheta(), 0.0, 0.0),
+        m_drivetrain::setModuleStates,
+        eventMap,
+        false,
+        m_drivetrain);
+
     // Add selector for choosing a trajectory to run.
+    m_autoPathChoice.addOption("Do Nothing", new InstantCommand());
+
     addAutoCommandToSelector("BlueCenter&Leave");
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");
     addAutoCommandToSelector("BlueCenter&Balance");
+
     addAutoCommandToSelector("RedCenter&Leave");
     addAutoCommandToSelector("RedNear&Leave");
     addAutoCommandToSelector("RedFar&Leave");
     addAutoCommandToSelector("RedCenter&Balance");
-    Command dontMove = new InstantCommand();
-    m_autoPathChoice.addOption("Do Nothing", dontMove);
+    // addAutoCommandToSelector("RedDriveSomewhereAndMoveArmToMid", autoBuilder);
 
     // Add selector for scoring low or mid.
-
     Command autoMoveToLow = new RunCommand(m_arm::moveToLow, m_arm);
     Command autoMoveToMid = new RunCommand(m_arm::moveToMid, m_arm);
     m_autoScoringChoice.addOption("ScoreLow", autoMoveToLow);
@@ -220,26 +286,6 @@ public class RobotContainer {
         .andThen(doThePath)
         .andThen(tryToBalance)
         .andThen(anchorJustInCaseWeAreBalancing);
-  }
-
-  /**
-   * Get the command corresponding to following the given trajectory.
-   * If the path does not exist by that name, will return a no-op command
-   * so that at least the robot does not crash on bootup.
-   * 
-   * @param pathplannerName
-   * @return Command
-   */
-  private Command safelyReadPathCommand(String pathplannerName) {
-    try {
-      PathPlannerTrajectory trajectory = PathPlanner.loadPath(pathplannerName,
-          m_drivetrain.getPathPlannerConstraints());
-      return m_drivetrain.followTrajectoryCommand(trajectory, true);
-    } catch (Error err) {
-      // TODO: set some SmartDashboard state so the LightShow can detect an error
-      var noopCommand = new InstantCommand();
-      return noopCommand;
-    }
   }
 
 }
