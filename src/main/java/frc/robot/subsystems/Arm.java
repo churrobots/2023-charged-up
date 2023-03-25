@@ -30,7 +30,7 @@ public class Arm extends SubsystemBase {
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
-  private Level level = Level.LOW;
+  private Level level = Level.PARTY;
 
   private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
