@@ -30,21 +30,21 @@ public class Arm extends SubsystemBase {
     private static final double calibrationVelocitySensorUnitsPerSecond = -3000;
 
     private static final int offsetMaxCounts = 1000;
-    private static final int willFallRestOfTheWayCounts = 6000;
 
+    private static final int restingCounts = 3000;
     private static final int aimBottomCounts = 11975;
     private static final int aimMidCounts = 8000;
     private static final int receiveFromSubstationCounts = 10000;
-    private static final int receiveFromGroundCounts = 22000;
+    private static final int receiveFromGroundCounts = 20000;
 
     public static final TunableDouble kP = new TunableDouble("kP", 0.04);
     public static final TunableDouble kF = new TunableDouble("kF", 0.0); // 0.05
     public static final TunableDouble kI = new TunableDouble("kI", 0.0); // 0.000001
     public static final TunableDouble kD = new TunableDouble("kD", 0.0);
 
-    public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 230000);
-    public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 225000);
-    public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 0);
+    public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 6000);
+    public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 75000);
+    public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 1);
 
   }
 
@@ -120,7 +120,12 @@ public class Arm extends SubsystemBase {
   }
 
   public void receiveFromGround() {
-    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.receiveFromGroundCounts);
+    var gravityWillTakeItTheRestOfTheWay = armMotor.getSelectedSensorPosition() > Constants.receiveFromGroundCounts;
+    if (gravityWillTakeItTheRestOfTheWay) {
+      armMotor.set(TalonFXControlMode.PercentOutput, 0);
+    } else {
+      runMotorWithSafety(TalonFXControlMode.MotionMagic, 1.15 * Constants.receiveFromGroundCounts);
+    }
   }
 
   public void moveToLow() {
@@ -142,10 +147,11 @@ public class Arm extends SubsystemBase {
   }
 
   public void restTheArm() {
-    if (armMotor.getSelectedSensorPosition() > Constants.willFallRestOfTheWayCounts) {
-      runMotorWithSafety(TalonFXControlMode.MotionMagic, 0.95 * Constants.willFallRestOfTheWayCounts);
-    } else {
+    var gravityWillTakeItTheRestOfTheWay = armMotor.getSelectedSensorPosition() < Constants.restingCounts;
+    if (gravityWillTakeItTheRestOfTheWay) {
       armMotor.set(TalonFXControlMode.PercentOutput, 0);
+    } else {
+      runMotorWithSafety(TalonFXControlMode.MotionMagic, 0.70 * Constants.restingCounts);
     }
   }
 
