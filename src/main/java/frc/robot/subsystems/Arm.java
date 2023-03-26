@@ -34,6 +34,7 @@ public class Arm extends SubsystemBase {
     private static final int aimBottomCounts = 11975;
     private static final int aimMidCounts = 8000;
     private static final int receiveFromSubstationCounts = 10000;
+    private static final int receiveFromGroundCounts = 22000;
 
     public static final TunableDouble kP = new TunableDouble("kP", 0.04);
     public static final TunableDouble kF = new TunableDouble("kF", 0.0); // 0.05
@@ -115,6 +116,10 @@ public class Arm extends SubsystemBase {
   public void receiveFromSingleSubstation(double offset) {
     offset *= Constants.offsetMaxCounts;
     runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.receiveFromSubstationCounts + offset);
+  }
+
+  public void receiveFromGround() {
+    runMotorWithSafety(TalonFXControlMode.MotionMagic, Constants.receiveFromGroundCounts);
   }
 
   public void moveToLow() {
