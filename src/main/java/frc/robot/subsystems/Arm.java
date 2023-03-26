@@ -35,13 +35,14 @@ public class Arm extends SubsystemBase {
     private static final int aimBottomCounts = 11975;
     private static final int aimMidCounts = 8000;
     private static final int receiveFromSubstationCounts = 10000;
-    private static final int receiveFromGroundCounts = 20000;
+    private static final int receiveFromGroundCounts = 18000;
 
     public static final TunableDouble kP = new TunableDouble("kP", 0.04);
     public static final TunableDouble kF = new TunableDouble("kF", 0.0); // 0.05
     public static final TunableDouble kI = new TunableDouble("kI", 0.0); // 0.000001
     public static final TunableDouble kD = new TunableDouble("kD", 0.0);
 
+    public static final TunableDouble kMaxGravityFeedForward = new TunableDouble("kMaxGravityFeedForward", -0.07);
     public static final TunableInteger kArmSpeed = new TunableInteger("kArmSpeed", 6000);
     public static final TunableInteger kArmAcceleration = new TunableInteger("kArmAcceleration", 75000);
     public static final TunableInteger kArmSmoothing = new TunableInteger("kArmSmoothing", 1);
@@ -68,7 +69,7 @@ public class Arm extends SubsystemBase {
     double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
     double radians = java.lang.Math.toRadians(degrees);
     double cosineScalar = java.lang.Math.cos(radians);
-    double maxGravityFF = -0.12;
+    double maxGravityFF = Constants.kMaxGravityFeedForward.get();
     return maxGravityFF * cosineScalar;
   }
 
