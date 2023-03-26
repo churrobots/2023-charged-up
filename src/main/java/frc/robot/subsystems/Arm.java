@@ -30,6 +30,7 @@ public class Arm extends SubsystemBase {
     private static final double calibrationVelocitySensorUnitsPerSecond = -3000;
 
     private static final int offsetMaxCounts = 1000;
+    private static final int willFallRestOfTheWayCounts = 6000;
 
     private static final int aimBottomCounts = 11975;
     private static final int aimMidCounts = 8000;
@@ -141,8 +142,8 @@ public class Arm extends SubsystemBase {
   }
 
   public void restTheArm() {
-    if (armMotor.getSelectedSensorPosition() > 6000) {
-      runMotorWithSafety(TalonFXControlMode.MotionMagic, 3000);
+    if (armMotor.getSelectedSensorPosition() > Constants.willFallRestOfTheWayCounts) {
+      runMotorWithSafety(TalonFXControlMode.MotionMagic, 0.95 * Constants.willFallRestOfTheWayCounts);
     } else {
       armMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
