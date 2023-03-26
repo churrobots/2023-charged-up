@@ -20,8 +20,8 @@ public class Intake extends SubsystemBase {
     private static final double aimBottomUpperRollerSpeedPercent = -0.40;
     private static final double aimBottomLowerRollerSpeedPercent = -0.40;
 
-    private static final double restingUpperRollerSpeedPercent = -1.00;
-    private static final double restingLowerRollerSpeedPercent = -1.00;
+    private static final double defaultUpperRollerSpeedPercent = -1.00;
+    private static final double defaultLowerRollerSpeedPercent = -1.00;
 
   }
 
@@ -55,8 +55,8 @@ public class Intake extends SubsystemBase {
       topCubeYoinker.set(Constants.aimBottomUpperRollerSpeedPercent);
       bottomCubeYoinker.set(Constants.aimBottomLowerRollerSpeedPercent);
     } else {
-      topCubeYoinker.set(Constants.restingUpperRollerSpeedPercent);
-      bottomCubeYoinker.set(Constants.restingLowerRollerSpeedPercent);
+      topCubeYoinker.set(Constants.defaultUpperRollerSpeedPercent);
+      bottomCubeYoinker.set(Constants.defaultLowerRollerSpeedPercent);
     }
   }
 
