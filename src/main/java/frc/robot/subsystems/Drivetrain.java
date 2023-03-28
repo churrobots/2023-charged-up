@@ -69,7 +69,7 @@ public class Drivetrain extends SubsystemBase {
     // original values were all 1.0
     public static final double kPXController = 2;
     public static final double kPYController = 2;
-    public static final double kPThetaController = 0.04;
+    public static final double kPThetaController = 1;
 
     // Autonomous: Trajectory speed constants
     // FIXME: were both 3.0 before, but we slowed it down for balancing and safety
