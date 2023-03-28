@@ -244,7 +244,7 @@ public class RobotContainer {
     if (gotoScoringPosition == null) {
       gotoScoringPosition = new RunCommand(m_arm::moveToLow, m_arm);
     }
-    gotoScoringPosition = gotoScoringPosition.withTimeout(2);
+    gotoScoringPosition = gotoScoringPosition.withTimeout(.50);
 
     // Prepare the rest of our actions.
     Command resetDrivetrainGyroSoFieldRelativeWorksAftward = new RunCommand(m_drivetrain::resetGyroForAuto,
@@ -252,7 +252,7 @@ public class RobotContainer {
     Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm).withTimeout(0.25);
     Command yeetForSomeTime = new RunCommand(m_intake::yeetTheCubes, m_intake).withTimeout(0.75);
     Command stopRollers = new InstantCommand(m_intake::stopThePlan, m_intake);
-    Command resetArm = new RunCommand(m_arm::restTheArm, m_arm).withTimeout(0.75);
+    Command resetArm = new RunCommand(m_arm::restTheArm, m_arm).withTimeout(0.50);
     Command stopTheArm = new InstantCommand(m_arm::restTheArm, m_arm);
     Command anchorJustInCaseWeAreBalancing = new RunCommand(m_drivetrain::setXFormation, m_drivetrain);
     Command tryToBalance = new YahtzeeBalance(m_drivetrain);
