@@ -174,7 +174,7 @@ public class RobotContainer {
     Command autoPathCommand;
     try {
       List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
-          m_drivetrain.getPathPlannerConstraints());
+          m_drivetrain.getPathPlannerConstraintsForAutoBuilder());
       autoPathCommand = builder.fullAuto(pathGroup);
     } catch (Error err) {
       // TODO: set some SmartDashboard state so the LightShow can detect an error
