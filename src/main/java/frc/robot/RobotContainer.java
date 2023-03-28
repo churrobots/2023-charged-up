@@ -190,7 +190,20 @@ public class RobotContainer {
     // https://github.com/mjansen4857/pathplanner/wiki/PathPlannerLib:-Java-Usage#autobuilder
     // Global event map for all autobuilder commands.
     HashMap<String, Command> eventMap = new HashMap<>();
-    eventMap.put("AutoMoveToMid", new RunCommand(m_arm::moveToMid, m_arm));
+    var autoPickup = new RunCommand(m_arm::receiveFromGround, m_arm)
+        .alongWith(new RunCommand(m_intake::yoinkTheCubes, m_intake))
+        .withTimeout(1.2)
+        .andThen(new InstantCommand(m_intake::stopThePlan, m_intake))
+        .andThen(new RunCommand(m_arm::restTheArm, m_arm));
+
+    var autoYeetBottom = new RunCommand(m_arm::moveToLow, m_arm)
+        .withTimeout(.5)
+        .andThen(new RunCommand(m_intake::yeetTheCubes, m_intake).withTimeout(1))
+        .andThen(new InstantCommand(m_intake::stopThePlan, m_intake))
+        .andThen(new RunCommand(m_arm::restTheArm, m_arm));
+
+    eventMap.put("AutoPick", autoPickup);
+    eventMap.put("YeetBottom", autoYeetBottom);
 
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         m_drivetrain::getPose,
@@ -215,7 +228,8 @@ public class RobotContainer {
     addAutoCommandToSelector("RedNear&Leave");
     addAutoCommandToSelector("RedFar&Leave");
     addAutoCommandToSelector("RedCenter&Balance");
-    // addAutoCommandToSelector("RedDriveSomewhereAndMoveArmToMid", autoBuilder);
+    addAutoCommandToSelector("TESTBlueCenterPickBalance", autoBuilder);
+    addAutoCommandToSelector("TESTBlueBump2Piece", autoBuilder);
 
     // Add selector for scoring low or mid.
     Command autoMoveToLow = new RunCommand(m_arm::moveToLow, m_arm);
