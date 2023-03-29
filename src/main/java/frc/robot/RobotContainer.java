@@ -228,9 +228,9 @@ public class RobotContainer {
     addAutoCommandToSelector("RedNear&Leave");
     addAutoCommandToSelector("RedFar&Leave");
     addAutoCommandToSelector("RedCenter&Balance");
-    addAutoCommandToSelector("TESTBlueCenterPickBalance", autoBuilder);
-    addAutoCommandToSelector("TESTBlueBump2Piece", autoBuilder);
-    addAutoCommandToSelector("TESTNearSide2Piece", autoBuilder);
+    addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder);
+    addAutoCommandToSelector("MULTI_CenterPickBalance", autoBuilder);
+    addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder);
     // Uncomment these if you want to run more calibrations
     // addAutoCommandToSelector("CALIBRATE_Linear", autoBuilder);
     // addAutoCommandToSelector("CALIBRATE_Rotate", autoBuilder);
