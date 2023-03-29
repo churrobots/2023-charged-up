@@ -99,7 +99,6 @@ public class RobotContainer {
     var leftBumperOpButton = new JoystickButton(m_operatorController, Button.kLeftBumper.value);
     var rightBumperOpButton = new JoystickButton(m_operatorController, Button.kRightBumper.value);
     var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
-    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
@@ -112,7 +111,6 @@ public class RobotContainer {
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(moveToReceive);
-    bOpButton.whileTrue(new RunCommand(m_arm::receiveFromGround, m_arm));
   }
 
   private void ensureSubsystemsHaveDefaultCommands() {
