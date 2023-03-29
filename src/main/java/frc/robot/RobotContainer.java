@@ -213,7 +213,7 @@ public class RobotContainer {
         new PIDConstants(kPTheta, 0.0, 0.0),
         m_drivetrain::setModuleStates,
         eventMap,
-        false,
+        true,
         m_drivetrain);
 
     // Add selector for choosing a trajectory to run.
