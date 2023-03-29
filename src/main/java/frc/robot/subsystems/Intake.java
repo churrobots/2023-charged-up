@@ -14,12 +14,11 @@ public class Intake extends SubsystemBase {
     private static final int topRollerMotorID = 10;
     private static final int bottomRollerMotorID = 11;
 
-    private static final double aimMidUpperRollerSpeedPercent = -1.00;
+    private static final double aimMidUpperRollerSpeedPercent = -0.70;
     private static final double aimMidLowerRollerSpeedPercent = -1.00;
 
     private static final double aimBottomUpperRollerSpeedPercent = -0.40;
-    private static final double aimBottomLowerRollerSpeedPercent = -0.40;
-
+    private static final double aimBottomLowerRollerSpeedPercent = -0.35;
     private static final double defaultUpperRollerSpeedPercent = -1.00;
     private static final double defaultLowerRollerSpeedPercent = -1.00;
 

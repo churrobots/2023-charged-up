@@ -32,8 +32,8 @@ public class Arm extends SubsystemBase {
     private static final int offsetMaxCounts = 1000;
 
     private static final int restingCounts = 3000;
-    private static final int aimBottomCounts = 11975;
-    private static final int aimMidCounts = 8000;
+    private static final int aimBottomCounts = 12400;
+    private static final int aimMidCounts = 6500;
     private static final int receiveFromSubstationCounts = 10000;
     private static final int receiveFromGroundCounts = 18000;
 
