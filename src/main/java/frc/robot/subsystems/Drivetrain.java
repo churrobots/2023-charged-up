@@ -68,8 +68,8 @@ public class Drivetrain extends SubsystemBase {
     // know if it's comparable characteristics so we might want to reconsider, the
     // original values were all 1.0
     public static final double kPXController = 2;
-    public static final double kPYController = 2;
-    public static final double kPThetaController = 1;
+    public static final double kPYController = 4;
+    public static final double kPThetaController = 0.04;
 
     // Autonomous: Trajectory speed constants
     // FIXME: were both 3.0 before, but we slowed it down for balancing and safety
@@ -418,14 +418,6 @@ public class Drivetrain extends SubsystemBase {
                    // Optional, defaults to true
             this // Requires this drive subsystem
         ));
-  }
-
-  public double getPIDX() {
-    return SpeedyHedgehogConstants.kPXController;
-  }
-
-  public double getPIDTheta() {
-    return SpeedyHedgehogConstants.kPThetaController;
   }
 
   public double getPitch() {

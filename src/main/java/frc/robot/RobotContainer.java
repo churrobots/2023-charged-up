@@ -205,12 +205,14 @@ public class RobotContainer {
     eventMap.put("AutoPick", autoPickup);
     eventMap.put("YeetBottom", autoYeetBottom);
 
+    var kPX = 2;
+    var kPTheta = 1;
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         m_drivetrain::getPose,
         m_drivetrain::resetPose,
         m_drivetrain.getKinematics(),
-        new PIDConstants(m_drivetrain.getPIDX(), 0.0, 0.0),
-        new PIDConstants(m_drivetrain.getPIDTheta(), 0.0, 0.0),
+        new PIDConstants(kPX, 0.0, 0.0),
+        new PIDConstants(kPTheta, 0.0, 0.0),
         m_drivetrain::setModuleStates,
         eventMap,
         false,
