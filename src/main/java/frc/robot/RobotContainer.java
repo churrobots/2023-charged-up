@@ -230,8 +230,10 @@ public class RobotContainer {
     addAutoCommandToSelector("RedCenter&Balance");
 
     addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder);
-    addAutoCommandToSelector("MULTI_CenterPickBalance", autoBuilder);
-    addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder);
+
+    // These were experiments from drive practice night
+    // addAutoCommandToSelector("TEST_CenterPickBalance", autoBuilder);
+    // addAutoCommandToSelector("TEST_NearSide2Piece", autoBuilder);
 
     // Uncomment these if you want to run more calibrations
     // addAutoCommandToSelector("CALIBRATE_Linear", autoBuilder);
