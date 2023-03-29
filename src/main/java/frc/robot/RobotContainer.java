@@ -230,10 +230,12 @@ public class RobotContainer {
     addAutoCommandToSelector("RedCenter&Balance");
     addAutoCommandToSelector("TESTBlueCenterPickBalance", autoBuilder);
     addAutoCommandToSelector("TESTBlueBump2Piece", autoBuilder);
-    addAutoCommandToSelector("CALIBRATE_Linear", autoBuilder);
-    addAutoCommandToSelector("CALIBRATE_Rotate", autoBuilder);
-    addAutoCommandToSelector("CALIBRATE_LinearRotate", autoBuilder);
-    addAutoCommandToSelector("CALIBRATE_Figure8", autoBuilder);
+    addAutoCommandToSelector("TESTNearSide2Piece", autoBuilder);
+    // Uncomment these if you want to run more calibrations
+    // addAutoCommandToSelector("CALIBRATE_Linear", autoBuilder);
+    // addAutoCommandToSelector("CALIBRATE_Rotate", autoBuilder);
+    // addAutoCommandToSelector("CALIBRATE_LinearRotate", autoBuilder);
+    // addAutoCommandToSelector("CALIBRATE_Figure8", autoBuilder);
 
     // Add selector for scoring low or mid.
     Command autoMoveToLow = new RunCommand(m_arm::moveToLow, m_arm);
