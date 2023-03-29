@@ -75,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
     // FIXME: were both 3.0 before, but we slowed it down for balancing and safety
     public static final double kTrajectoryMaxSpeedMetersPerSecond = 2;
     public static final double kTrajectoryMaxAccelerationMetersPerSecondSquared = 0.8;
-    public static final double kTrajectoryMaxSpeedMetersPerSecondForAutoBuilder = 2.3;
+    public static final double kTrajectoryMaxSpeedMetersPerSecondForAutoBuilder = 2.4;
     public static final double kTrajectoryMaxAccelerationMetersPerSecondSquaredForAutoBuilder = 1.0;
 
     // Driving Parameters - Note that these are not the maximum capable speeds of
