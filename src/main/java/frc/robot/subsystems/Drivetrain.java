@@ -81,6 +81,10 @@ public class Drivetrain extends SubsystemBase {
     public static final double kTrajectoryMaxSpeedMetersPerSecondForAutoBuilder = 2.4;
     public static final double kTrajectoryMaxAccelerationMetersPerSecondSquaredForAutoBuilder = 1.0;
 
+    // Note: these are for fast autos with events
+    public static final double kFastTrajectoryMaxSpeedMetersPerSecondForAutoBuilder = 2.5;
+    public static final double kFastTrajectoryMaxAccelerationMetersPerSecondSquaredForAutoBuilder = 1.7;
+
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
@@ -437,5 +441,11 @@ public class Drivetrain extends SubsystemBase {
     return new PathConstraints(
         SpeedyHedgehogConstants.kTrajectoryMaxSpeedMetersPerSecondForAutoBuilder,
         SpeedyHedgehogConstants.kTrajectoryMaxAccelerationMetersPerSecondSquaredForAutoBuilder);
+  }
+
+  public PathConstraints getPathPlannerConstraintsForFastAutoBuilder() {
+    return new PathConstraints(
+        SpeedyHedgehogConstants.kFastTrajectoryMaxSpeedMetersPerSecondForAutoBuilder,
+        SpeedyHedgehogConstants.kFastTrajectoryMaxAccelerationMetersPerSecondSquaredForAutoBuilder);
   }
 }

@@ -168,12 +168,19 @@ public class RobotContainer {
    * @param name
    * @return Command
    */
-  private void addAutoCommandToSelector(String name, SwerveAutoBuilder builder) {
+  private void addAutoCommandToSelector(String name, SwerveAutoBuilder builder, boolean isFast) {
     Command autoPathCommand;
     try {
-      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
-          m_drivetrain.getPathPlannerConstraintsForAutoBuilder());
-      autoPathCommand = builder.fullAuto(pathGroup);
+      if (isFast) {
+        List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
+            m_drivetrain.getPathPlannerConstraintsForFastAutoBuilder());
+        autoPathCommand = builder.fullAuto(pathGroup);
+      } else {
+        List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
+            m_drivetrain.getPathPlannerConstraintsForAutoBuilder());
+        autoPathCommand = builder.fullAuto(pathGroup);
+      }
+
     } catch (Error err) {
       // TODO: set some SmartDashboard state so the LightShow can detect an error
       var noopCommand = new InstantCommand();
@@ -230,11 +237,11 @@ public class RobotContainer {
     addAutoCommandToSelector("RedCenter&Balance");
 
     // Paths involving events
-    addAutoCommandToSelector("MULTI_PickAndBalance", autoBuilder);
-    addAutoCommandToSelector("MULTI_NearSidePick", autoBuilder);
-    addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder);
-    addAutoCommandToSelector("MULTI_BumpSidePick", autoBuilder);
-    addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder); // needs tuning
+    addAutoCommandToSelector("MULTI_PickAndBalance", autoBuilder, false);
+    // addAutoCommandToSelector("MULTI_NearSidePick", autoBuilder, false);
+    addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder, true);
+    // addAutoCommandToSelector("MULTI_BumpSidePick", autoBuilder, false);
+    // addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder, false);
 
     // These were experiments from drive practice night
     // addAutoCommandToSelector("TEST_CenterPickBalance", autoBuilder);
