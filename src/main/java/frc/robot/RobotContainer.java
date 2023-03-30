@@ -229,6 +229,7 @@ public class RobotContainer {
     addAutoCommandToSelector("RedFar&Leave");
     addAutoCommandToSelector("RedCenter&Balance");
 
+    // Paths involving events
     addAutoCommandToSelector("MULTI_PickAndBalance", autoBuilder);
     addAutoCommandToSelector("MULTI_NearSidePick", autoBuilder);
     addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder);
