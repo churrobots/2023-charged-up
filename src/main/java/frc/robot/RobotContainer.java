@@ -241,7 +241,8 @@ public class RobotContainer {
     // addAutoCommandToSelector("MULTI_NearSidePick", autoBuilder, false);
     addAutoCommandToSelector("MULTI_NearSide2Piece", autoBuilder, true);
     // addAutoCommandToSelector("MULTI_BumpSidePick", autoBuilder, false);
-    // addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder, false);
+    addAutoCommandToSelector("MULTI_BumpSide2Piece", autoBuilder, false); //
+    // needs tuning
 
     // These were experiments from drive practice night
     // addAutoCommandToSelector("TEST_CenterPickBalance", autoBuilder);
