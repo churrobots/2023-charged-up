@@ -1,0 +1,108 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.1009355443051998,
+        "y": 0.5845256490608298
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.1009355443052,
+        "y": 0.5845256490608298
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.9553942933954565,
+        "y": 1.6568840511599823
+      },
+      "prevControl": {
+        "x": 0.9553942933954565,
+        "y": 1.6568840511599823
+      },
+      "nextControl": {
+        "x": 2.9553942933954627,
+        "y": 1.6568840511599823
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.2850022031700385,
+        "y": 1.8637822828042878
+      },
+      "prevControl": {
+        "x": 3.0212138970594875,
+        "y": 2.03681204611613
+      },
+      "nextControl": {
+        "x": 1.5487905092805896,
+        "y": 1.6907525194924458
+      },
+      "holonomicAngle": -179.63729946304076,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.68956135135316,
+        "y": 3.854437874353683
+      },
+      "prevControl": {
+        "x": 3.4405217660431315,
+        "y": 3.573029538186704
+      },
+      "nextControl": null,
+      "holonomicAngle": 179.25585987259646,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "YeetBottom"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "minimum",
+        "waitTime": 6.0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.9355113636363633,
+      "names": [
+        "AutoPick"
+      ]
+    }
+  ]
+}

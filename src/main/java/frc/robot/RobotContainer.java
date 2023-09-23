@@ -238,6 +238,8 @@ public class RobotContainer {
     // Add selector for choosing a trajectory to run.
     m_autoPathChoice.addOption("Do Nothing", new InstantCommand());
 
+    addAutoCommandToSelector("TestPath");
+    addAutoCommandToSelector("TestPath2", autoBuilder, false);
     addAutoCommandToSelector("BlueCenter&Leave");
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");
