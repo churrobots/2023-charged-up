@@ -85,6 +85,10 @@ public class RobotContainer {
     GreenIsolator.createCameraStream("Sonic");
   }
 
+  public void handleDisable() {
+    createAutonomousSelector();
+  }
+
   private void configureButtonBindings() {
 
     // Teleop commands for the driver and operator.
