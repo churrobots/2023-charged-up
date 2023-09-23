@@ -43,10 +43,10 @@ public class Intake extends SubsystemBase {
   public void yoinkTheCubes() {
     topCubeYoinker.set(.75);
     bottomCubeYoinker.set(.75);
-
   }
 
   public void yeetTheCubes() {
+
     if (arm.isAimingMid()) {
       topCubeYoinker.set(Constants.aimMidUpperRollerSpeedPercent);
       bottomCubeYoinker.set(Constants.aimMidLowerRollerSpeedPercent);

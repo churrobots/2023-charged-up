@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import frc.robot.commands.YahtzeeBalance;
 import frc.robot.helpers.GreenIsolator;
 import frc.robot.subsystems.Arm;
@@ -47,10 +48,37 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
 
+  Command slowDrive;
+  Command fastDrive;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    double slowDriveScaling = 0.4;
+    slowDrive = new RunCommand(
+        () -> m_drivetrain.drive(
+            -MathUtil.applyDeadband(m_driverController.getLeftY() * slowDriveScaling,
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getLeftX() * slowDriveScaling,
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getRightX() * slowDriveScaling,
+                OIConstants.kDriveDeadband),
+            true, true),
+        m_drivetrain);
+
+    fastDrive = new RunCommand(
+        () -> m_drivetrain.drive(
+            -MathUtil.applyDeadband(m_driverController.getLeftY(),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getLeftX(),
+                OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(m_driverController.getRightX(),
+                OIConstants.kDriveDeadband),
+            true, true),
+        m_drivetrain);
+
     configureButtonBindings();
     ensureSubsystemsHaveDefaultCommands();
     createAutonomousSelector();
@@ -73,18 +101,7 @@ public class RobotContainer {
         m_arm);
     Command moveToLow = new RunCommand(() -> m_arm.moveToLow(-m_operatorController.getLeftY()), m_arm);
     Command moveToMid = new RunCommand(() -> m_arm.moveToMid(-m_operatorController.getLeftY()), m_arm);
-
-    double slowDriveScaling = 0.4;
-    Command slowAndSteadyPeople = new RunCommand(
-        () -> m_drivetrain.drive(
-            -MathUtil.applyDeadband(m_driverController.getLeftY() * slowDriveScaling,
-                OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverController.getLeftX() * slowDriveScaling,
-                OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverController.getRightX() * slowDriveScaling,
-                OIConstants.kDriveDeadband),
-            true, true),
-        m_drivetrain);
+    Command moveToGroundPickup = new RunCommand(m_arm::receiveFromGround, m_arm);
 
     // Driver
     var startButton = new JoystickButton(m_driverController, Button.kStart.value);
@@ -92,7 +109,7 @@ public class RobotContainer {
     var rightBumper = new JoystickButton(m_driverController, Button.kRightBumper.value);
 
     leftBumper.whileTrue(anchorInPlace);
-    rightBumper.whileTrue(slowAndSteadyPeople);
+    rightBumper.whileTrue(slowDrive);
     startButton.whileTrue(resetGyro);
 
     // Operator
@@ -101,6 +118,7 @@ public class RobotContainer {
     var aOpButton = new JoystickButton(m_operatorController, Button.kA.value);
     var xOpButton = new JoystickButton(m_operatorController, Button.kX.value);
     var yOpButton = new JoystickButton(m_operatorController, Button.kY.value);
+    var bOpButton = new JoystickButton(m_operatorController, Button.kB.value);
     var startOpButton = new JoystickButton(m_operatorController, Button.kStart.value);
     var backOpButton = new JoystickButton(m_operatorController, Button.kBack.value);
 
@@ -111,26 +129,16 @@ public class RobotContainer {
     xOpButton.whileTrue(moveToLow);
     aOpButton.whileTrue(moveToMid);
     yOpButton.whileTrue(moveToReceive);
+    bOpButton.whileTrue(moveToGroundPickup);
   }
 
   private void ensureSubsystemsHaveDefaultCommands() {
-
-    Command driveFieldRelativeWithJoysticks = new RunCommand(
-        () -> m_drivetrain.drive(
-            -MathUtil.applyDeadband(m_driverController.getLeftY(),
-                OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverController.getLeftX(),
-                OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(m_driverController.getRightX(),
-                OIConstants.kDriveDeadband),
-            true, true),
-        m_drivetrain);
 
     Command safelyRestTheArm = new RunCommand(m_arm::restTheArm, m_arm);
     Command stopRollers = new RunCommand(m_intake::stopThePlan, m_intake);
 
     // Set defaults for all subsystems
-    m_drivetrain.setDefaultCommand(driveFieldRelativeWithJoysticks);
+    m_drivetrain.setDefaultCommand(fastDrive);
     m_arm.setDefaultCommand(safelyRestTheArm);
     m_intake.setDefaultCommand(stopRollers);
   }
