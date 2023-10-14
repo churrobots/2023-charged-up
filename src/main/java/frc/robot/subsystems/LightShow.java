@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LightShow extends SubsystemBase {
-  private final int klightPWM = 0;
+  private final int klightPWM = 9;
 
   // NOTE: you can only allocate ONE strip of LEDs (in series). This is a
   // limitation
@@ -68,6 +68,9 @@ public class LightShow extends SubsystemBase {
   public void setPurple() {
     fillPercentage(5, 0, 5);
   }
+  public void setBlue() {
+    fillPercentage(0, 0, 5);
+  }
 
   public void setGreen() {
     fillPercentage(0, 5, 0);
@@ -86,6 +89,8 @@ public class LightShow extends SubsystemBase {
       setPurple();
     } else if (m_Intake.isYoinking()) {
       setGreen();
+    } else if (m_Intake.isYeeting()) {
+      setBlue();
     } else {
       turnOff();
     }

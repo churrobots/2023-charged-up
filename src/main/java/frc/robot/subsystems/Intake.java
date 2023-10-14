@@ -44,7 +44,14 @@ public class Intake extends SubsystemBase {
     topCubeYoinker.set(.75);
     bottomCubeYoinker.set(.75);
   }
-
+  
+  public boolean isYeeting() {
+    boolean yeeting = false;
+    if (topCubeYoinker.get() < 0 && bottomCubeYoinker.get() < 0) {
+      yeeting = true;
+    }
+    return yeeting;
+  }
   public void yeetTheCubes() {
 
     if (arm.isAimingMid()) {
