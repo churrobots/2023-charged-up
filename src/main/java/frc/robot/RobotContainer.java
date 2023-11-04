@@ -239,11 +239,12 @@ public class RobotContainer {
     m_autoPathChoice.addOption("Do Nothing", new InstantCommand());
 
     addAutoCommandToSelector("TestPath");
-    addAutoCommandToSelector("TestPath2", autoBuilder, false);
+    // addAutoCommandToSelector("TestPath2", autoBuilder, false);
     addAutoCommandToSelector("BlueCenter&Leave");
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");
     addAutoCommandToSelector("BlueCenter&Balance");
+    // addAutoCommandToSelector("Magic");
 
     addAutoCommandToSelector("RedCenter&Leave");
     addAutoCommandToSelector("RedNear&Leave");
