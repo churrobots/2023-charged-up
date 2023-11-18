@@ -23,13 +23,11 @@ public class LightShow extends SubsystemBase {
   AddressableLEDBuffer pixels = new AddressableLEDBuffer(PIXELS);
   Timer t = new Timer();
   double waitTime = 0.0;
-  private final Intake m_Intake;
 
-  public LightShow(Intake m_Intake) {
+  public LightShow() {
     leds.setLength(PIXELS);
     leds.start();
     t.start();
-    this.m_Intake = m_Intake;
   }
 
   public int getPixelCount() {
@@ -84,8 +82,6 @@ public class LightShow extends SubsystemBase {
       setRed();
     } else if (RobotState.isAutonomous()) {
       setPurple();
-    } else if (m_Intake.isYoinking()) {
-      setGreen();
     } else {
       turnOff();
     }

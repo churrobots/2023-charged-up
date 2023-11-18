@@ -50,22 +50,22 @@ public class Arm extends SubsystemBase {
   }
 
   private final SubsystemInspector m_inspector = new SubsystemInspector(getSubsystem());
-  private Level level = Level.RESTING;
+  private Level m_level = Level.RESTING;
 
-  private final WPI_TalonFX armMotor = new WPI_TalonFX(Constants.armCanID);
+  private final WPI_TalonFX m_armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
 
   public Arm() {
-    armMotor.configFactoryDefault();
-    armMotor.setNeutralMode(NeutralMode.Brake);
-    FalconUtils.configureSafeCurrentLimits(armMotor);
+    m_armMotor.configFactoryDefault();
+    m_armMotor.setNeutralMode(NeutralMode.Brake);
+    FalconUtils.configureSafeCurrentLimits(m_armMotor);
     updateArmTuning();
   }
 
   private double calculateFeedForward() {
     int kMeasuredPosHorizontal = 22673; // Position measured when arm is horizontal
     double kTicksPerDegree = 53828 / 360; // Sensor is 1:1 with arm rotation
-    double currentPos = armMotor.getSelectedSensorPosition();
+    double currentPos = m_armMotor.getSelectedSensorPosition();
     double degrees = (currentPos - kMeasuredPosHorizontal) / kTicksPerDegree;
     double radians = java.lang.Math.toRadians(degrees);
     double cosineScalar = java.lang.Math.cos(radians);
@@ -78,41 +78,41 @@ public class Arm extends SubsystemBase {
       if (mode == TalonFXControlMode.MotionMagic) {
         if (value >= Constants.aimMidCounts - Constants.offsetMaxCounts
             && value <= Constants.aimMidCounts + Constants.offsetMaxCounts) {
-          level = Level.MID;
+          m_level = Level.MID;
         } else if (value > Constants.aimMidCounts + Constants.offsetMaxCounts) {
-          level = Level.LOW;
+          m_level = Level.LOW;
         } else {
-          level = Level.RESTING;
+          m_level = Level.RESTING;
         }
-        armMotor.set(mode, value, DemandType.ArbitraryFeedForward, calculateFeedForward());
+        m_armMotor.set(mode, value, DemandType.ArbitraryFeedForward, calculateFeedForward());
         m_inspector.set("target", value);
-        m_inspector.set("actual", armMotor.getSelectedSensorPosition());
+        m_inspector.set("actual", m_armMotor.getSelectedSensorPosition());
       } else {
-        armMotor.set(mode, value);
+        m_armMotor.set(mode, value);
       }
     }
   }
 
   public boolean isAimingMid() {
-    return level == Level.MID;
+    return m_level == Level.MID;
   }
 
   public boolean isAimingGround() {
-    return level == Level.LOW;
+    return m_level == Level.LOW;
   }
 
   public boolean isResting() {
-    return level == Level.RESTING;
+    return m_level == Level.RESTING;
   }
 
   public void resetCalibration() {
-    armMotor.setSelectedSensorPosition(0);
+    m_armMotor.setSelectedSensorPosition(0);
     m_isCalibrated = true;
   }
 
   public void moveIntoCalibrationPosition() {
     m_isCalibrated = false;
-    armMotor.set(TalonFXControlMode.Velocity, Constants.calibrationVelocitySensorUnitsPerSecond);
+    m_armMotor.set(TalonFXControlMode.Velocity, Constants.calibrationVelocitySensorUnitsPerSecond);
   }
 
   public void receiveFromSingleSubstation(double offset) {
@@ -121,9 +121,9 @@ public class Arm extends SubsystemBase {
   }
 
   public void receiveFromGround() {
-    var gravityWillTakeItTheRestOfTheWay = armMotor.getSelectedSensorPosition() > Constants.receiveFromGroundCounts;
+    var gravityWillTakeItTheRestOfTheWay = m_armMotor.getSelectedSensorPosition() > Constants.receiveFromGroundCounts;
     if (gravityWillTakeItTheRestOfTheWay) {
-      armMotor.set(TalonFXControlMode.PercentOutput, 0);
+      m_armMotor.set(TalonFXControlMode.PercentOutput, 0);
     } else {
       runMotorWithSafety(TalonFXControlMode.MotionMagic, 1.15 * Constants.receiveFromGroundCounts);
     }
@@ -148,9 +148,9 @@ public class Arm extends SubsystemBase {
   }
 
   public void restTheArm() {
-    var gravityWillTakeItTheRestOfTheWay = armMotor.getSelectedSensorPosition() < Constants.restingCounts;
+    var gravityWillTakeItTheRestOfTheWay = m_armMotor.getSelectedSensorPosition() < Constants.restingCounts;
     if (gravityWillTakeItTheRestOfTheWay) {
-      armMotor.set(TalonFXControlMode.PercentOutput, 0);
+      m_armMotor.set(TalonFXControlMode.PercentOutput, 0);
     } else {
       runMotorWithSafety(TalonFXControlMode.MotionMagic, 0.70 * Constants.restingCounts);
     }
@@ -174,7 +174,7 @@ public class Arm extends SubsystemBase {
 
   private void updateArmTuning() {
     FalconUtils.configureMotionMagic(
-        armMotor,
+        m_armMotor,
         Constants.kArmSpeed.get(),
         Constants.kArmAcceleration.get(),
         Constants.kArmSmoothing.get(),
