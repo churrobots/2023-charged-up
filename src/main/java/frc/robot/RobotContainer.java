@@ -183,15 +183,10 @@ public class RobotContainer {
   private void addAutoCommandToSelector(String name, SwerveAutoBuilder builder, boolean isFast) {
     Command autoPathCommand;
     try {
-      if (isFast) {
-        List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
-            m_drivetrain.getPathPlannerConstraintsForFastAutoBuilder());
-        autoPathCommand = builder.fullAuto(pathGroup);
-      } else {
-        List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name,
-            m_drivetrain.getPathPlannerConstraintsForAutoBuilder());
-        autoPathCommand = builder.fullAuto(pathGroup);
-      }
+      var fileConstraints = PathPlanner.getConstraintsFromPath(name);
+      var defaultConstraints = m_drivetrain.getPathPlannerConstraintsForAutoBuilder();
+      List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(name, fileConstraints || defaultConstraints);
+      autoPathCommand = builder.fullAuto(pathGroup);
 
     } catch (Error err) {
       // TODO: set some SmartDashboard state so the LightShow can detect an error
