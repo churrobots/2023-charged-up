@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.helpers.Vision;
 
 public class LightShow extends SubsystemBase {
   private final int klightPWM = 0;
@@ -23,8 +24,10 @@ public class LightShow extends SubsystemBase {
   AddressableLEDBuffer pixels = new AddressableLEDBuffer(PIXELS);
   Timer t = new Timer();
   double waitTime = 0.0;
+  Vision m_vision;
 
-  public LightShow() {
+  public LightShow(Vision vision) {
+    m_vision = vision;
     leds.setLength(PIXELS);
     leds.start();
     t.start();
@@ -77,6 +80,7 @@ public class LightShow extends SubsystemBase {
 
   @Override
   public void periodic() {
+    int lightShowNumber = m_vision.getMostRecentId();
     // runDefaultLights();
     if (RobotState.isEStopped()) {
       setRed();
