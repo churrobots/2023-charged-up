@@ -40,6 +40,7 @@ public class RobotContainer {
   public RobotContainer() {
     configureButtonBindings();
     ensureSubsystemsHaveDefaultCommands();
+    new LightShow();
   }
 
   public void handleDisable() {

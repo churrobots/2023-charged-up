@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LightShow extends SubsystemBase {
-  private final int klightPWM = 0;
+  private final int klightPWM = 9;
 
   // NOTE: you can only allocate ONE strip of LEDs (in series). This is a
   // limitation
@@ -21,13 +21,13 @@ public class LightShow extends SubsystemBase {
   final int STRIPS = 2;
   final int PIXELS = (ROWS * COLS) * STRIPS;
   AddressableLEDBuffer pixels = new AddressableLEDBuffer(PIXELS);
-  Timer t = new Timer();
+  Timer timer = new Timer();
   double waitTime = 0.0;
 
   public LightShow() {
     leds.setLength(PIXELS);
     leds.start();
-    t.start();
+    timer.start();
   }
 
   public int getPixelCount() {
@@ -72,19 +72,39 @@ public class LightShow extends SubsystemBase {
   }
 
   public void setRed() {
-    fillPercentage(5, 0, 0);
+    fillPercentage(100, 0, 0);
+  }
+
+  public void showTimeAsBrightness(int frame) {
+    fillPercentage(frame / 10 * 100, 0, 0);
+  }
+
+  // The lights sort of follow a nonlinear pattern where if x is even
+  // convert x and y coordinates to an index on the light strip
+  int findIndex(int x, int y) {
+    int index;
+    x = 31 - x;// correct from right to left
+    if (x % 2 == 0) {
+      index = (8 * x) + y;
+    } else {
+      index = (8 * x) + (7 - y);
+    }
+    return index;
   }
 
   @Override
   public void periodic() {
-    // runDefaultLights();
-    if (RobotState.isEStopped()) {
-      setRed();
-    } else if (RobotState.isAutonomous()) {
-      setPurple();
-    } else {
-      turnOff();
-    }
+    // double currentTime = timer.get();//1.5034234234
+    // double tenTimesFaster = currentTime * 10;//15.034234234
+    // int index = (int) tenTimesFaster;//15
+
+    int x = 0;
+    int y = 2;
+    int index = findIndex(x, y);
+
+    pixels.setRGB(index % PIXELS, 20, 0, 0);
+    pixels.setRGB(findIndex(3, 3), 20, 0, 0);
+    leds.setData(pixels);
   }
 
   public void turnOff() {
