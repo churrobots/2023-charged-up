@@ -15,7 +15,7 @@ import frc.robot.helpers.SubsystemInspector;
 import frc.robot.helpers.Tunables.TunableDouble;
 import frc.robot.helpers.Tunables.TunableInteger;
 
-public class Arm extends SubsystemBase {
+public class ExampleFalconArm extends SubsystemBase {
 
   enum Level {
     LOW,
@@ -55,7 +55,7 @@ public class Arm extends SubsystemBase {
   private final WPI_TalonFX m_armMotor = new WPI_TalonFX(Constants.armCanID);
   private boolean m_isCalibrated = false;
 
-  public Arm() {
+  public ExampleFalconArm() {
     m_armMotor.configFactoryDefault();
     m_armMotor.setNeutralMode(NeutralMode.Brake);
     FalconUtils.configureSafeCurrentLimits(m_armMotor);
