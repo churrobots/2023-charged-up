@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.HashMap;
 import java.util.List;
 
+// TODO: this needs to be rewritten to support PathPlanner 2024 version
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
@@ -222,14 +223,14 @@ public class RobotContainer {
     eventMap.put("AutoPick", autoPickup);
     eventMap.put("YeetBottom", autoYeetBottom);
 
-    var kPX = 1.2;
-    var kPTheta = 1.1;
+    var translationMagic = new PIDConstants(5.0, 1.0, 0.0);
+    var rotationMagic = new PIDConstants(1.0, 0.0, 0.0);
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         m_drivetrain::getPose,
         m_drivetrain::resetPose,
         m_drivetrain.getKinematics(),
-        new PIDConstants(kPX, 0.0, 0.0),
-        new PIDConstants(kPTheta, 0.0, 0.0),
+        translationMagic,
+        rotationMagic,
         m_drivetrain::setModuleStates,
         eventMap,
         true,
@@ -239,7 +240,7 @@ public class RobotContainer {
     m_autoPathChoice.addOption("Do Nothing", new InstantCommand());
 
     addAutoCommandToSelector("TestPath");
-    // addAutoCommandToSelector("TestPath2", autoBuilder, false);
+    addAutoCommandToSelector("TestPath2", autoBuilder, false);
     addAutoCommandToSelector("BlueCenter&Leave");
     addAutoCommandToSelector("BlueNear&Leave");
     addAutoCommandToSelector("BlueFar&Leave");

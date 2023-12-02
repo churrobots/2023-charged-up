@@ -195,6 +195,10 @@ public class Drivetrain extends SubsystemBase {
             m_rearRight.getPosition()
         });
     m_inspector.set("Pitch", m_gyro.getPitch());
+    m_inspector.set("Yaw", m_gyro.getYaw());
+    m_inspector.set("Roll", m_gyro.getRoll());
+    m_inspector.set("Angle", m_gyro.getAngle());
+    m_inspector.set("Compass", m_gyro.getAbsoluteCompassHeading());
   }
 
   /**
