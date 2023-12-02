@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.helpers.Vision;
 
 public class LightShow extends SubsystemBase {
   private final int klightPWM = 9;
@@ -23,8 +24,10 @@ public class LightShow extends SubsystemBase {
   AddressableLEDBuffer pixels = new AddressableLEDBuffer(PIXELS);
   Timer timer = new Timer();
   double waitTime = 0.0;
+  Vision m_vision;
 
-  public LightShow() {
+  public LightShow(Vision vision) {
+    m_vision = vision;
     leds.setLength(PIXELS);
     leds.start();
     timer.start();

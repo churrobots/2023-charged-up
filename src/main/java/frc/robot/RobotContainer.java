@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import frc.robot.helpers.Vision;
 import frc.robot.subsystems.LightShow;
 
 public class RobotContainer {
@@ -33,11 +33,13 @@ public class RobotContainer {
 
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
+  private final Vision m_visionTagOfDetectionAndGreatestIntelligence = new Vision();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_visionTagOfDetectionAndGreatestIntelligence.start();
     configureButtonBindings();
     ensureSubsystemsHaveDefaultCommands();
     new LightShow();
