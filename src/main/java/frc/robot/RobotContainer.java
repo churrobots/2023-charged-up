@@ -4,23 +4,11 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-import java.util.List;
-
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.helpers.Vision;
 import frc.robot.subsystems.LightShow;
 
@@ -31,45 +19,46 @@ public class RobotContainer {
     public static final int kOperatorrControllerPort = 1;
   }
 
+  // Inputs
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorrControllerPort);
   private final Vision m_visionTagOfDetectionAndGreatestIntelligence = new Vision();
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
+  // Outputs
+  private final LightShow m_lightShow = new LightShow();
+
+  public void bootup() {
+
     m_visionTagOfDetectionAndGreatestIntelligence.start();
-    configureButtonBindings();
-    ensureSubsystemsHaveDefaultCommands();
-    new LightShow();
+
+    var showRed = new RunCommand(m_lightShow::setRed, m_lightShow);
+    var showGreen = new RunCommand(m_lightShow::setGreen, m_lightShow);
+    var showPurple = new RunCommand(m_lightShow::setPurple, m_lightShow);
+    var showBlue = new RunCommand(m_lightShow::setBlue, m_lightShow);
+
+    var showing1 = new Trigger(() -> {
+      return m_visionTagOfDetectionAndGreatestIntelligence.getMostRecentAprilTag() == 1;
+    });
+
+    var showing2 = new Trigger(() -> {
+      return m_visionTagOfDetectionAndGreatestIntelligence.getMostRecentAprilTag() == 2;
+    });
+
+    var showing3 = new Trigger(() -> {
+      return m_visionTagOfDetectionAndGreatestIntelligence.getMostRecentAprilTag() == 3;
+    });
+
+    showing1.whileTrue(showRed);
+    showing2.whileTrue(showGreen);
+    showing3.whileTrue(showBlue);
+
+    m_lightShow.setDefaultCommand(showPurple);
   }
 
   public void handleDisable() {
-    // createAutonomousSelector();
+    m_lightShow.setPurple();
   }
 
-  private void configureButtonBindings() {
-
-    // Command resetArmCalibration = new RunCommand(m_arm::resetCalibration, m_arm);
-    // Command moveToReceive = new RunCommand(() ->
-    // m_arm.receiveFromSingleSubstation(-m_operatorController.getLeftY()), m_arm);
-    // var leftBumper = new JoystickButton(m_driverController,
-    // Button.kLeftBumper.value);
-    // leftBumper.whileTrue(moveToReceive);
-  }
-
-  private void ensureSubsystemsHaveDefaultCommands() {
-    // m_drivetrain.setDefaultCommand(fastDrive);
-    // m_arm.setDefaultCommand(safelyRestTheArm);
-    // m_intake.setDefaultCommand(stopRollers);
-  }
-
-  /**
-   * This is called by the system when automomous runs, and it
-   * should return the command you want to execute when automous
-   * mode begins.
-   */
   public Command getAutonomousCommand() {
     return new InstantCommand();
   }

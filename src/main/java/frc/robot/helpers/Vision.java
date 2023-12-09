@@ -20,7 +20,7 @@ public class Vision {
 
   }
 
-  public int getMostRecentId() {
+  public int getMostRecentAprilTag() {
     return m_mostRecentId;
   }
 
@@ -75,7 +75,9 @@ public class Vision {
             Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_RGB2GRAY);
 
             var results = aprilTagDetector.detect(grayMat);
-            m_mostRecentId = results[0].getId();
+            if (results.length > 0) {
+              m_mostRecentId = results[0].getId();
+            }
 
             var set = new HashSet<>();
 

@@ -8,6 +8,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ChickenScreamer extends SubsystemBase {
 
+  private final int kBlowerMotorCAN = 6;
+
+  // VictorSPX
+
   public ChickenScreamer() {
     // do constructor things
   }
